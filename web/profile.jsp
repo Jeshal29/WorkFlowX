@@ -108,14 +108,15 @@
         }
         
         .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid white;
-            object-fit: cover;
-            background: white;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid white;
+    object-fit: cover;
+    background: white;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
         
         .upload-overlay {
             position: absolute;
