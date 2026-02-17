@@ -15,507 +15,215 @@
             --bg: #FFFFFF;
             --bg-alt: #F8FAFC;
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'DM Sans', sans-serif;
             color: var(--text);
             background: var(--bg);
             overflow-x: hidden;
         }
-        
-        /* Animated Background */
         .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: -1;
             background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
         }
-        
         .background::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 20s ease-in-out infinite;
+            content: ''; position: absolute;
+            top: -50%; right: -20%; width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
+            border-radius: 50%; animation: float 20s ease-in-out infinite;
         }
-        
         .background::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 25s ease-in-out infinite reverse;
+            content: ''; position: absolute;
+            bottom: -30%; left: -10%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
+            border-radius: 50%; animation: float 25s ease-in-out infinite reverse;
         }
-        
         @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(50px, 50px) scale(1.1); }
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(50px,50px) scale(1.1); }
         }
-        
-        /* Navigation */
         nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            position: fixed; top: 0; left: 0; right: 0;
             padding: 20px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.8);
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.8);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
             z-index: 1000;
             animation: slideDown 0.6s ease;
         }
-        
         @keyframes slideDown {
             from { transform: translateY(-100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 900;
+            font-size: 28px; font-weight: 900;
             background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        
-        .nav-links {
-            display: flex;
-            gap: 40px;
-            align-items: center;
-        }
-        
+        .nav-links { display: flex; gap: 40px; align-items: center; }
         .nav-links a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 15px;
-            transition: color 0.3s;
-            position: relative;
+            color: var(--text); text-decoration: none;
+            font-weight: 500; font-size: 15px; transition: color 0.3s; position: relative;
         }
-        
         .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--secondary);
-            transition: width 0.3s;
+            content: ''; position: absolute; bottom: -5px; left: 0;
+            width: 0; height: 2px; background: var(--secondary); transition: width 0.3s;
         }
-        
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-        
+        .nav-links a:hover::after { width: 100%; }
         .btn-nav {
-            padding: 10px 24px;
-            background: var(--secondary);
-            color: white;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
+            padding: 10px 24px; background: var(--secondary);
+            color: white !important; border-radius: 8px;
+            text-decoration: none; font-weight: 600; transition: all 0.3s;
         }
-        
-        .btn-nav:hover {
-            background: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-        }
-        
-        /* Hero Section */
+        .btn-nav:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99,102,241,0.3); }
+        .btn-nav::after { display: none !important; }
         .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 120px 5% 60px;
-            position: relative;
+            min-height: 100vh; display: flex; align-items: center;
+            padding: 120px 5% 60px; position: relative;
         }
-        
         .hero-content {
             max-width: 600px;
             animation: fadeInUp 0.8s ease 0.2s both;
         }
-        
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
         .hero-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border-radius: 20px;
-            color: var(--secondary);
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 24px;
+            display: inline-block; padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.1) 100%);
+            border-radius: 20px; color: var(--secondary);
+            font-size: 14px; font-weight: 600; margin-bottom: 24px;
             animation: fadeInUp 0.8s ease 0.3s both;
         }
-        
         h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 72px;
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            color: var(--primary);
+            font-size: 72px; font-weight: 900; line-height: 1.1;
+            margin-bottom: 24px; color: var(--primary);
             animation: fadeInUp 0.8s ease 0.4s both;
         }
-        
         h1 .gradient-text {
             background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        
         .hero p {
-            font-size: 20px;
-            color: var(--text-light);
-            line-height: 1.7;
-            margin-bottom: 40px;
+            font-size: 20px; color: var(--text-light);
+            line-height: 1.7; margin-bottom: 40px;
             animation: fadeInUp 0.8s ease 0.5s both;
         }
-        
-        .cta-group {
-            display: flex;
-            gap: 20px;
-            animation: fadeInUp 0.8s ease 0.6s both;
-        }
-        
+        .cta-group { display: flex; gap: 20px; animation: fadeInUp 0.8s ease 0.6s both; }
         .btn {
-            padding: 16px 40px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 16px;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: none;
+            padding: 16px 40px; border-radius: 12px;
+            font-weight: 700; font-size: 16px; text-decoration: none;
+            display: inline-block; transition: all 0.3s; cursor: pointer; border: none;
         }
-        
         .btn-primary {
             background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
-            color: white;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            color: white; box-shadow: 0 10px 30px rgba(99,102,241,0.3);
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
-        }
-        
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(99,102,241,0.4); }
         .btn-secondary {
-            background: white;
-            color: var(--text);
+            background: white; color: var(--text);
             border: 2px solid var(--primary);
         }
-        
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-3px);
-        }
-        
-        /* Hero Image */
+        .btn-secondary:hover { background: var(--primary); color: white; transform: translateY(-3px); }
         .hero-visual {
-            position: absolute;
-            right: 5%;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 500px;
-            height: 500px;
+            position: absolute; right: 5%; top: 50%; transform: translateY(-50%);
+            width: 500px; height: 500px;
             animation: fadeIn 1s ease 0.5s both;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .visual-card {
-            position: absolute;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            padding: 24px;
+            position: absolute; background: white; border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1); padding: 24px;
             animation: floatCard 3s ease-in-out infinite;
         }
-        
         @keyframes floatCard {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
         }
-        
-        .card-1 {
-            top: 0;
-            left: 0;
-            width: 240px;
-            animation-delay: 0s;
-        }
-        
-        .card-2 {
-            top: 150px;
-            right: 0;
-            width: 200px;
-            animation-delay: 0.5s;
-        }
-        
-        .card-3 {
-            bottom: 50px;
-            left: 80px;
-            width: 220px;
-            animation-delay: 1s;
-        }
-        
-        /* Features Section */
-        .features {
-            padding: 100px 5%;
-            background: var(--bg-alt);
-        }
-        
-        .section-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto 80px;
-        }
-        
+        .card-1 { top: 0; left: 0; width: 240px; animation-delay: 0s; }
+        .card-2 { top: 150px; right: 0; width: 200px; animation-delay: 0.5s; }
+        .card-3 { bottom: 50px; left: 80px; width: 220px; animation-delay: 1s; }
+        .features { padding: 100px 5%; background: var(--bg-alt); }
+        .section-header { text-align: center; max-width: 700px; margin: 0 auto 80px; }
         .section-header h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 48px;
-            font-weight: 900;
-            margin-bottom: 20px;
-            color: var(--primary);
+            font-size: 48px; font-weight: 900; margin-bottom: 20px; color: var(--primary);
         }
-        
-        .section-header p {
-            font-size: 18px;
-            color: var(--text-light);
-            line-height: 1.7;
-        }
-        
+        .section-header p { font-size: 18px; color: var(--text-light); line-height: 1.7; }
         .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px; max-width: 1200px; margin: 0 auto;
         }
-        
         .feature-card {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            background: white; padding: 40px; border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s;
+            position: relative; overflow: hidden;
         }
-        
         .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 4px;
             background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
-            transform: scaleX(0);
-            transition: transform 0.3s;
+            transform: scaleX(0); transition: transform 0.3s;
         }
-        
-        .feature-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-        
+        .feature-card:hover::before { transform: scaleX(1); }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 24px;
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.1) 100%);
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 28px; margin-bottom: 24px;
         }
-        
-        .feature-card h3 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--primary);
-        }
-        
-        .feature-card p {
-            color: var(--text-light);
-            line-height: 1.7;
-            font-size: 15px;
-        }
-        
-        /* Stats Section */
-        .stats {
-            padding: 80px 5%;
-            background: var(--primary);
-            color: white;
-        }
-        
+        .feature-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: var(--primary); }
+        .feature-card p { color: var(--text-light); line-height: 1.7; font-size: 15px; }
+        .stats { padding: 80px 5%; background: var(--primary); color: white; }
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 60px;
-            max-width: 1000px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 60px; max-width: 1000px; margin: 0 auto;
         }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
+        .stat-item { text-align: center; }
         .stat-number {
             font-family: 'Playfair Display', serif;
-            font-size: 56px;
-            font-weight: 900;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.7) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 56px; font-weight: 900; margin-bottom: 8px;
+            background: linear-gradient(135deg, #FFFFFF 0%, rgba(255,255,255,0.7) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        
-        .stat-label {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 500;
-        }
-        
-        /* CTA Section */
-        .cta-section {
-            padding: 120px 5%;
-            text-align: center;
-        }
-        
+        .stat-label { font-size: 16px; color: rgba(255,255,255,0.8); font-weight: 500; }
+        .cta-section { padding: 120px 5%; text-align: center; }
         .cta-box {
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 800px; margin: 0 auto;
             background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
-            padding: 80px 60px;
-            border-radius: 24px;
-            color: white;
-            box-shadow: 0 30px 60px rgba(99, 102, 241, 0.3);
+            padding: 80px 60px; border-radius: 24px; color: white;
+            box-shadow: 0 30px 60px rgba(99,102,241,0.3);
         }
-        
         .cta-box h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 48px;
-            font-weight: 900;
-            margin-bottom: 20px;
+            font-size: 48px; font-weight: 900; margin-bottom: 20px;
         }
-        
-        .cta-box p {
-            font-size: 18px;
-            margin-bottom: 40px;
-            opacity: 0.95;
-        }
-        
-        .cta-box .btn-primary {
-            background: white;
-            color: var(--secondary);
-        }
-        
-        .cta-box .btn-primary:hover {
-            transform: translateY(-3px) scale(1.05);
-        }
-        
-        /* Footer */
+        .cta-box p { font-size: 18px; margin-bottom: 40px; opacity: 0.95; }
+        .cta-box .btn-white { background: white; color: var(--secondary); }
+        .cta-box .btn-white:hover { transform: translateY(-3px) scale(1.05); }
         footer {
-            background: var(--primary);
-            color: white;
-            padding: 40px 5%;
-            text-align: center;
+            background: var(--primary); color: white;
+            padding: 40px 5%; text-align: center;
         }
-        
-        footer p {
-            opacity: 0.7;
-            font-size: 14px;
-        }
-        
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .hero-visual {
-                display: none;
-            }
-            
-            .hero-content {
-                max-width: 100%;
-            }
-        }
-        
+        footer p { opacity: 0.7; font-size: 14px; }
+        @media (max-width: 1200px) { .hero-visual { display: none; } .hero-content { max-width: 100%; } }
         @media (max-width: 768px) {
-            h1 {
-                font-size: 48px;
-            }
-            
-            .hero p {
-                font-size: 18px;
-            }
-            
-            .cta-group {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
-            
-            .nav-links {
-                display: none;
-            }
+            h1 { font-size: 48px; }
+            .hero p { font-size: 18px; }
+            .cta-group { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
+            .nav-links a:not(.btn-nav) { display: none; }
         }
     </style>
 </head>
 <body>
     <div class="background"></div>
-    
     <nav>
         <div class="logo">WorkFlowX</div>
         <div class="nav-links">
@@ -524,7 +232,6 @@
             <a href="login.jsp" class="btn-nav">Login</a>
         </div>
     </nav>
-    
     <section class="hero">
         <div class="hero-content">
             <div class="hero-badge">✨ Modern Workplace Solution</div>
@@ -535,63 +242,55 @@
                 <a href="login.jsp" class="btn btn-secondary">Sign In</a>
             </div>
         </div>
-        
         <div class="hero-visual">
             <div class="visual-card card-1">
-                <div style="font-size: 32px; margin-bottom: 12px;">💬</div>
-                <div style="font-weight: 700; margin-bottom: 4px;">Secure Messaging</div>
-                <div style="font-size: 13px; color: #64748B;">End-to-end protection</div>
+                <div style="font-size:32px;margin-bottom:12px;">💬</div>
+                <div style="font-weight:700;margin-bottom:4px;">Secure Messaging</div>
+                <div style="font-size:13px;color:#64748B;">Team conversations</div>
             </div>
             <div class="visual-card card-2">
-                <div style="font-size: 32px; margin-bottom: 12px;">✓</div>
-                <div style="font-weight: 700; margin-bottom: 4px;">Task Manager</div>
-                <div style="font-size: 13px; color: #64748B;">Stay organized</div>
+                <div style="font-size:32px;margin-bottom:12px;">✅</div>
+                <div style="font-weight:700;margin-bottom:4px;">Task Manager</div>
+                <div style="font-size:13px;color:#64748B;">Stay organized</div>
             </div>
             <div class="visual-card card-3">
-                <div style="font-size: 32px; margin-bottom: 12px;">📊</div>
-                <div style="font-weight: 700; margin-bottom: 4px;">Analytics</div>
-                <div style="font-size: 13px; color: #64748B;">Track progress</div>
+                <div style="font-size:32px;margin-bottom:12px;">📊</div>
+                <div style="font-weight:700;margin-bottom:4px;">Analytics</div>
+                <div style="font-size:13px;color:#64748B;">Track progress</div>
             </div>
         </div>
     </section>
-    
     <section class="features" id="features">
         <div class="section-header">
             <h2>Everything You Need</h2>
             <p>Powerful features designed to streamline your workflow and enhance team productivity</p>
         </div>
-        
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">💬</div>
                 <h3>Smart Messaging</h3>
                 <p>Secure conversations with automatic content moderation and intelligent filtering for a professional environment.</p>
             </div>
-            
             <div class="feature-card">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon">✅</div>
                 <h3>Task Management</h3>
                 <p>Assign, track, and complete tasks with ease. Set priorities, deadlines, and monitor progress in real-time.</p>
             </div>
-            
             <div class="feature-card">
                 <div class="feature-icon">🏖️</div>
                 <h3>Leave Management</h3>
                 <p>Simple leave application and approval system. Track team availability and manage time-off requests effortlessly.</p>
             </div>
-            
             <div class="feature-card">
                 <div class="feature-icon">📁</div>
                 <h3>File Sharing</h3>
                 <p>Secure cloud storage for team documents. Share files instantly with role-based access controls.</p>
             </div>
-            
             <div class="feature-card">
                 <div class="feature-icon">📝</div>
                 <h3>Smart Notes</h3>
                 <p>Personal workspace for ideas and reminders. Pin important notes and keep everything organized.</p>
             </div>
-            
             <div class="feature-card">
                 <div class="feature-icon">📊</div>
                 <h3>Analytics & Reports</h3>
@@ -599,17 +298,33 @@
             </div>
         </div>
     </section>
-    
-    
-    
+    <section class="stats" id="about">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div class="stat-label">User Roles</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">8+</div>
+                <div class="stat-label">Core Modules</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free to Use</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Always Available</div>
+            </div>
+        </div>
+    </section>
     <section class="cta-section">
         <div class="cta-box">
             <h2>Ready to Transform Your Workflow?</h2>
-            <p>Join thousands of teams already using WorkFlowX to communicate better and achieve more.</p>
-            <a href="register.jsp" class="btn btn-primary">Start Your Free Trial</a>
+            <p>Join your team on WorkFlowX and experience seamless collaboration today.</p>
+            <a href="register.jsp" class="btn btn-white">Create Your Account</a>
         </div>
     </section>
-    
     <footer>
         <p>&copy; 2025 WorkFlowX. All rights reserved. Built with excellence for modern teams.</p>
     </footer>
