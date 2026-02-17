@@ -558,7 +558,24 @@ body.dark-mode {
             grid-template-columns: 1fr !important;
         }
     }
-
+.role-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+}
+.role-employer {
+    background: #fff3e0;
+    color: #e65100;
+}
+.role-employee {
+    background: #e3f2fd;
+    color: #1565c0;
+}
 </style>
 </head>
 <body class="<%= theme.equals("DARK") ? "dark-mode" : "" %>">
@@ -671,9 +688,16 @@ body.dark-mode {
                          data-dept="<%= violator.get("department").toString().toLowerCase() %>">
                         <div class="violator-info">
                             <div>
-                                <a href="reportUserDetail.jsp?userId=<%= violator.get("userId") %>" class="user-link">
-                                    <div class="violator-name"><%= violator.get("fullName") %></div>
-                                </a>
+                                 <a href="reportUserDetail.jsp?userId=<%= violator.get("userId") %>" class="user-link">
+        <div class="violator-name">
+            <%= violator.get("fullName") %>
+            <% if (isAdmin && violator.get("role") != null) { %>
+                <span class="role-badge role-<%= violator.get("role").toString().toLowerCase() %>">
+                    <%= violator.get("role") %>
+                </span>
+            <% } %>
+        </div>
+    </a>
                                 <div class="violator-dept"><%= violator.get("department") %></div>
                             </div>
                         </div>
@@ -704,12 +728,17 @@ body.dark-mode {
                          data-content="<%= msg.get("messageContent").toString().toLowerCase() %>">
                         <div class="header">
                             <div class="sender">
-                                From: 
-                                <a href="reportUserDetail.jsp?userId=<%= msg.get("senderId") %>" class="user-link">
-                                    <%= msg.get("senderName") %>
-                                </a>
-                                → <%= msg.get("receiverName") %>
-                            </div>
+        From: 
+        <a href="reportUserDetail.jsp?userId=<%= msg.get("senderId") %>" class="user-link">
+            <%= msg.get("senderName") %>
+        </a>
+        <% if (isAdmin && msg.get("senderRole") != null) { %>
+            <span class="role-badge role-<%= msg.get("senderRole").toString().toLowerCase() %>">
+                <%= msg.get("senderRole") %>
+            </span>
+        <% } %>
+        → <%= msg.get("receiverName") %>
+    </div>
                             <div class="date"><%= sdf.format((Timestamp)msg.get("sentAt")) %></div>
                         </div>
                         
