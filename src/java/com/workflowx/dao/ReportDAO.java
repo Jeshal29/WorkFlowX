@@ -112,13 +112,15 @@ public class ReportDAO {
     
     public List<Map<String, Object>> getCensoredMessages() {
         String sql = "SELECT m.message_id, m.subject, m.message_content, m.original_content, " +
-                    "m.sent_at, sender.user_id as sender_id, sender.full_name as sender_name, " +
-                    "receiver.full_name as receiver_name " +
-                    "FROM messages m " +
-                    "JOIN users sender ON m.sender_id = sender.user_id " +
-                    "JOIN users receiver ON m.receiver_id = receiver.user_id " +
-                    "WHERE m.is_censored = TRUE " +
-                    "ORDER BY m.sent_at DESC";
+                "m.sent_at, sender.user_id as sender_id, sender.full_name as sender_name, " +
+                "sender.role as sender_role, " +          // ADD THIS LINE
+                "receiver.full_name as receiver_name " +
+                "FROM messages m " +
+                "JOIN users sender ON m.sender_id = sender.user_id " +
+                "JOIN users receiver ON m.receiver_id = receiver.user_id " +
+                "WHERE m.is_censored = TRUE " +
+                "ORDER BY m.sent_at DESC";
+
         
         return getCensoredMessagesQuery(sql);
     }
@@ -175,17 +177,19 @@ public class ReportDAO {
              ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
-                Map<String, Object> msg = new HashMap<>();
-                msg.put("messageId", rs.getInt("message_id"));
-                msg.put("subject", rs.getString("subject"));
-                msg.put("messageContent", rs.getString("message_content"));
-                msg.put("originalContent", rs.getString("original_content"));
-                msg.put("sentAt", rs.getTimestamp("sent_at"));
-                msg.put("senderId", rs.getInt("sender_id"));
-                msg.put("senderName", rs.getString("sender_name"));
-                msg.put("receiverName", rs.getString("receiver_name"));
-                messages.add(msg);
-            }
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("messageId", rs.getInt("message_id"));
+            msg.put("subject", rs.getString("subject"));
+            msg.put("messageContent", rs.getString("message_content"));
+            msg.put("originalContent", rs.getString("original_content"));
+            msg.put("sentAt", rs.getTimestamp("sent_at"));
+            msg.put("senderId", rs.getInt("sender_id"));
+            msg.put("senderName", rs.getString("sender_name"));
+            msg.put("receiverName", rs.getString("receiver_name"));
+            // ADD THESE LINES - safely read role (may not exist in all queries)
+            try { msg.put("senderRole", rs.getString("sender_role")); } catch (SQLException e) { msg.put("senderRole", null); }
+            messages.add(msg);
+        }
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -220,25 +224,27 @@ public class ReportDAO {
     
     public List<Map<String, Object>> getTopViolators() {
         List<Map<String, Object>> violators = new ArrayList<>();
-        String sql = "SELECT u.user_id, u.full_name, u.department, COUNT(m.message_id) as violation_count " +
-                    "FROM messages m " +
-                    "JOIN users u ON m.sender_id = u.user_id " +
-                    "WHERE m.is_censored = TRUE " +
-                    "GROUP BY u.user_id " +
-                    "ORDER BY violation_count DESC LIMIT 10";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            while (rs.next()) {
-                Map<String, Object> violator = new HashMap<>();
-                violator.put("userId", rs.getInt("user_id"));
-                violator.put("fullName", rs.getString("full_name"));
-                violator.put("department", rs.getString("department"));
-                violator.put("violationCount", rs.getInt("violation_count"));
-                violators.add(violator);
-            }
+        String sql = "SELECT u.user_id, u.full_name, u.department, u.role, COUNT(m.message_id) as violation_count " +
+                //                                              ^^^^^^^^^^ ADD THIS
+                "FROM messages m " +
+                "JOIN users u ON m.sender_id = u.user_id " +
+                "WHERE m.is_censored = TRUE " +
+                "GROUP BY u.user_id " +
+                "ORDER BY violation_count DESC LIMIT 10";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+
+        while (rs.next()) {
+            Map<String, Object> violator = new HashMap<>();
+            violator.put("userId", rs.getInt("user_id"));
+            violator.put("fullName", rs.getString("full_name"));
+            violator.put("department", rs.getString("department"));
+            violator.put("role", rs.getString("role"));          // ADD THIS LINE
+            violator.put("violationCount", rs.getInt("violation_count"));
+            violators.add(violator);
+        }
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -347,7 +353,7 @@ public class ReportDAO {
                     "SUM(CASE WHEN t.status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_tasks " +
                     "FROM users u " +
                     "LEFT JOIN tasks t ON u.user_id = t.assigned_to " +
-                    "WHERE u.role = 'EMPLOYEE' " +
+                    "WHERE u.role = 'EMPLOYEE' AND u.is_active = TRUE " +
                     "GROUP BY u.user_id " +
                     "ORDER BY completed_tasks DESC";
         
@@ -564,15 +570,16 @@ public class ReportDAO {
     
     public List<Map<String, Object>> getCensoredMessagesByDepartment(String department) {
         List<Map<String, Object>> messages = new ArrayList<>();
-        String sql = "SELECT m.message_id, m.subject, m.message_content, m.original_content, " +
-                    "m.sent_at, sender.user_id as sender_id, sender.full_name as sender_name, " +
-                    "receiver.full_name as receiver_name " +
-                    "FROM messages m " +
-                    "JOIN users sender ON m.sender_id = sender.user_id " +
-                    "JOIN users receiver ON m.receiver_id = receiver.user_id " +
-                    "WHERE m.is_censored = TRUE " +
-                    "AND (sender.department = ? OR receiver.department = ?) " +
-                    "ORDER BY m.sent_at DESC";
+         String sql = "SELECT m.message_id, m.subject, m.message_content, m.original_content, " +
+                "m.sent_at, sender.user_id as sender_id, sender.full_name as sender_name, " +
+                "receiver.full_name as receiver_name " +
+                "FROM messages m " +
+                "JOIN users sender ON m.sender_id = sender.user_id " +
+                "JOIN users receiver ON m.receiver_id = receiver.user_id " +
+                "WHERE m.is_censored = TRUE " +
+                "AND sender.role = 'EMPLOYEE' " +   // ADD THIS LINE
+                "AND (sender.department = ? OR receiver.department = ?) " +
+                "ORDER BY m.sent_at DESC";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -604,11 +611,13 @@ public class ReportDAO {
     public List<Map<String, Object>> getTopViolatorsByDepartment(String department) {
         List<Map<String, Object>> violators = new ArrayList<>();
         String sql = "SELECT u.user_id, u.full_name, u.department, COUNT(m.message_id) as violation_count " +
-                    "FROM messages m " +
-                    "JOIN users u ON m.sender_id = u.user_id " +
-                    "WHERE m.is_censored = TRUE AND u.department = ? " +
-                    "GROUP BY u.user_id " +
-                    "ORDER BY violation_count DESC LIMIT 10";
+                "FROM messages m " +
+                "JOIN users u ON m.sender_id = u.user_id " +
+                "WHERE m.is_censored = TRUE AND u.department = ? AND u.role = 'EMPLOYEE' " +
+                //                                                  ^^^^^^^^^^^^^^^^^^ ADD THIS
+                "GROUP BY u.user_id " +
+                "ORDER BY violation_count DESC LIMIT 10";
+
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
