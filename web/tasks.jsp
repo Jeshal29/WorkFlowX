@@ -486,10 +486,13 @@
                         <% } %>
                         
                         <% if (task.getAttachmentPath() != null && !task.getAttachmentPath().isEmpty()) { %>
-                            <a href="<%= task.getAttachmentPath() %>" target="_blank" class="attachment-link">
-                                📎 View Attachment
-                            </a>
-                        <% } %>
+    <a href="<%= request.getContextPath() %>/download?file=<%= task.getAttachmentPath() %>" 
+       target="_blank" 
+       class="attachment-link">
+        📎 View Attachment
+    </a>
+<% } %>
+
                         
                         <div class="task-meta">
                             <span>📅 Deadline: <%= dateFormat.format(task.getDeadline()) %></span>

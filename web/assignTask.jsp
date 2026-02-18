@@ -25,7 +25,8 @@
     }
     
     UserDAO userDAO = new UserDAO();
-   List<User> employees = userDAO.getActiveEmployees();
+// Show only employees from the employer's own department
+List<User> employees = userDAO.getEmployeesByDepartment(currentUser.getDepartment());
 
 %>
 <!DOCTYPE html>

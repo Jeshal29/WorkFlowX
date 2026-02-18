@@ -42,9 +42,9 @@ public class RegisterServlet extends HttpServlet {
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
         String fullName = request.getParameter("fullName");
-        String role = request.getParameter("role");
+       // Force all self-registrations to EMPLOYEE only (employers created by admin)
+        String role = "EMPLOYEE";
         String department = request.getParameter("department");
-
         // Basic validation
         if (username == null || username.trim().isEmpty()) {
             request.setAttribute("error", "Username is required");
@@ -70,11 +70,11 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        if (role == null || role.trim().isEmpty()) {
+       /* if (role == null || role.trim().isEmpty()) {
             request.setAttribute("error", "Please select a role");
             request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
-        }
+        }*/
 
         if ("ADMIN".equalsIgnoreCase(role)) {
             request.setAttribute("error", "Admin registration is not allowed");

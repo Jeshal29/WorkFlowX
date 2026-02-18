@@ -2,20 +2,28 @@
 <%@ page import="com.workflowx.model.User, com.workflowx.dao.ReportDAO, java.util.*, java.text.SimpleDateFormat, java.sql.Date" %>
 <%
     User currentUser = (User) session.getAttribute("user");
-    if (currentUser == null || !currentUser.isEmployer()) {
-        response.sendRedirect("login.jsp");
-        return;
+    if (currentUser == null || (!currentUser.isEmployer() && !currentUser.isAdmin())) {
+    response.sendRedirect("login.jsp");
+    return;
+}
+
+ReportDAO dao = new ReportDAO();
+
+ String selectedStatus = request.getParameter("status");
+    if (selectedStatus == null) selectedStatus = "PENDING";
+
+    List<Map<String, Object>> leaves;
+    Map<String, Integer> leaveStats;
+
+    if (currentUser.isAdmin()) {
+        leaves = dao.getLeavesByStatus(selectedStatus);
+        leaveStats = dao.getLeaveStatsByStatus();
+    } else {
+        // Employer sees only leaves from their department employees
+        leaves = dao.getLeavesByStatusAndDepartment(selectedStatus, currentUser.getDepartment());
+        leaveStats = dao.getLeaveStatsByStatusAndDepartment(currentUser.getDepartment());
     }
-    
-    ReportDAO dao = new ReportDAO();
-    
-    String statusFilter = request.getParameter("status");
-    if (statusFilter == null || statusFilter.isEmpty()) {
-        statusFilter = "PENDING";
-    }
-    
-    List<Map<String, Object>> leaves = dao.getLeavesByStatus(statusFilter);
-    Map<String, Integer> leaveStats = dao.getLeaveStatsByStatus();
+
     
     SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
 User user = (User) session.getAttribute("user");
@@ -610,13 +618,13 @@ body {
         </div>
         
         <div class="filter-tabs">
-            <a href="reportLeaves.jsp?status=PENDING" class="<%= "PENDING".equals(statusFilter) ? "active" : "" %>">Pending</a>
-            <a href="reportLeaves.jsp?status=APPROVED" class="<%= "APPROVED".equals(statusFilter) ? "active" : "" %>">Approved</a>
-            <a href="reportLeaves.jsp?status=REJECTED" class="<%= "REJECTED".equals(statusFilter) ? "active" : "" %>">Rejected</a>
+            <a href="reportLeaves.jsp?status=PENDING" class="<%= "PENDING".equals(selectedStatus) ? "active" : "" %>">Pending</a>
+            <a href="reportLeaves.jsp?status=APPROVED" class="<%= "APPROVED".equals(selectedStatus) ? "active" : "" %>">Approved</a>
+            <a href="reportLeaves.jsp?status=REJECTED" class="<%= "REJECTED".equals(selectedStatus) ? "active" : "" %>">Rejected</a>
         </div>
         
         <% if (leaves.isEmpty()) { %>
-            <div class="no-data">No <%= statusFilter.toLowerCase() %> leave applications found</div>
+            <div class="no-data">No <%= selectedStatus.toLowerCase() %> leave applications found</div>
         <% } else { %>
             <% for (Map<String, Object> leave : leaves) { %>
                 <div class="leave-card">

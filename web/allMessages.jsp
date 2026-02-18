@@ -521,7 +521,18 @@ input.search { width:100%; padding:10px; border:1px solid #ddd; border-radius:5p
                 <% if (msg.get("subject") != null) { %>
                     <div><strong>Subject:</strong> <%= msg.get("subject") %></div>
                 <% } %>
+
                 <div style="margin-top:10px;"><%= msg.get("messageContent") %></div>
+
+                <% if (msg.get("attachmentPath") != null && 
+                       !msg.get("attachmentPath").toString().isEmpty()) { %>
+                    <div style="margin-top:8px;">
+                        <a href="uploads/<%= msg.get("attachmentPath") %>" target="_blank">
+                            📎 View Attachment
+                        </a>
+                    </div>
+                <% } %>
+
             </div>
         <% } %>
     <% } %>
@@ -544,41 +555,77 @@ input.search { width:100%; padding:10px; border:1px solid #ddd; border-radius:5p
                 <% if (msg.get("subject") != null) { %>
                     <div><strong>Subject:</strong> <%= msg.get("subject") %></div>
                 <% } %>
+
                 <div style="margin-top:10px;"><%= msg.get("messageContent") %></div>
+
+                <% if (msg.get("attachmentPath") != null && 
+                       !msg.get("attachmentPath").toString().isEmpty()) { %>
+                    <div style="margin-top:8px;">
+                        <a href="uploads/<%= msg.get("attachmentPath") %>" target="_blank">
+                            📎 View Attachment
+                        </a>
+                    </div>
+                <% } %>
+
             </div>
         <% } %>
     <% } %>
 </div>
+
 
 <!-- CENSORED MESSAGES -->
 <div id="censored" class="section" style="display:none;">
     <% if (censoredMessages.isEmpty()) { %>
         <div class="no-data">No filtered messages</div>
     <% } else { %>
+
         <input type="text" class="search" placeholder="🔍 Search filtered messages..." onkeyup="filterMessages('censored')">
-        <% for (Map<String,Object> msg : censoredMessages) { %>
-            <div class="violation-card" data-sender="<%= msg.get("senderName").toString().toLowerCase() %>"
+
+        <%
+            Set<Integer> shownMessageIds = new HashSet<>();
+            for (Map<String,Object> msg : censoredMessages) {
+
+                Integer msgId = (Integer) msg.get("messageId");
+                if (msgId == null || shownMessageIds.contains(msgId)) {
+                    continue;   // Skip duplicate
+                }
+                shownMessageIds.add(msgId);
+        %>
+
+            <div class="violation-card"
+                 data-sender="<%= msg.get("senderName").toString().toLowerCase() %>"
                  data-receiver="<%= msg.get("receiverName").toString().toLowerCase() %>"
                  data-content="<%= msg.get("messageContent").toString().toLowerCase() %>">
+
                 <div class="header">
                     <div class="sender">
-                        From: <a href="reportUserDetail.jsp?userId=<%= msg.get("senderId") %>" class="user-link">
+                        From:
+                        <a href="reportUserDetail.jsp?userId=<%= msg.get("senderId") %>" class="user-link">
                             <%= msg.get("senderName") %>
-                        </a> → <%= msg.get("receiverName") %>
+                        </a>
+                        → <%= msg.get("receiverName") %>
                     </div>
-                    <div class="date"><%= sdf.format((Timestamp)msg.get("sentAt")) %></div>
+                    <div class="date">
+                        <%= sdf.format((Timestamp)msg.get("sentAt")) %>
+                    </div>
                 </div>
+
                 <% if (msg.get("subject") != null) { %>
                     <div class="subject">Subject: <%= msg.get("subject") %></div>
                 <% } %>
+
                 <div class="label">Filtered Content:</div>
                 <div class="content"><%= msg.get("messageContent") %></div>
+
                 <div class="label">Original Content:</div>
                 <div class="original"><%= msg.get("originalContent") %></div>
+
             </div>
+
         <% } %>
     <% } %>
 </div>
+
 
 </div>
 

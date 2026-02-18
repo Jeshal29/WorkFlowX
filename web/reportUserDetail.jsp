@@ -24,11 +24,33 @@ if (userIdParam == null) {
     return;
 }
 
-int userId = Integer.parseInt(userIdParam);
 boolean isAdmin = currentUser.isAdmin();
 ReportDAO dao = new ReportDAO();
 
-Map<String, Object> userDetails = dao.getUserDetails(userId);
+int userId;
+    try {
+        userId = Integer.parseInt(request.getParameter("userId"));
+    } catch (Exception e) {
+        response.sendRedirect("reports.jsp");
+        return;
+    }
+
+    // SECURITY: Employer can only view employees from their own department
+    if (!currentUser.isAdmin()) {
+        boolean allowed = dao.isUserInDepartment(userId, currentUser.getDepartment());
+        if (!allowed) {
+            response.sendRedirect("reports.jsp");
+            return;
+        }
+    }
+
+    Map<String, Object> userDetails = dao.getUserDetails(userId);
+
+    if (userDetails.isEmpty()) {
+        response.sendRedirect("reports.jsp");
+        return;
+    }
+
 List<Map<String, Object>> allCensored = dao.getCensoredMessages();
 
 List<Map<String, Object>> userViolations = new ArrayList<>();

@@ -55,7 +55,12 @@ SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a");
         topViolators = dao.getTopViolatorsByDepartment(currentUser.getDepartment());
     }
     
-    Map<String, Integer> stats = dao.getBadWordStats();
+   Map<String, Integer> stats;
+    if (currentUser.isAdmin()) {
+        stats = dao.getBadWordStats();
+    } else {
+        stats = dao.getBadWordStatsByDepartment(currentUser.getDepartment());
+    }
 User user = (User) session.getAttribute("user");
     String theme = "LIGHT";
 

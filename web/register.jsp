@@ -374,17 +374,21 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Department</label>
-            <input type="text" name="department" placeholder="e.g., Development, HR, Sales">
-        </div>
-        <div class="form-group">
-            <label>Register as <span class="required">*</span></label>
-            <div class="radio-group">
-                <label><input type="radio" name="role" value="EMPLOYEE" checked> Employee</label>
-                <label><input type="radio" name="role" value="EMPLOYER"> Employer</label>
-            </div>
-        </div>
+       <div class="form-group">
+    <label>Department <span class="required">*</span></label>
+    <select name="department" required>
+        <option value="">-- Select Department --</option>
+        <option value="HR">HR</option>
+        <option value="IT">IT</option>
+        <option value="Finance">Finance</option>
+        <option value="Sales">Sales</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Operations">Operations</option>
+        <option value="Support">Support</option>
+    </select>
+</div>
+        <%-- Role is fixed as EMPLOYEE. Employers are created by Admin only. --%>
+        <input type="hidden" name="role" value="EMPLOYEE">
         <button type="submit" class="btn">Register</button>
     </form>
 

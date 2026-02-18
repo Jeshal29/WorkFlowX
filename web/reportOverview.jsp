@@ -2,17 +2,34 @@
 <%@ page import="com.workflowx.model.User, com.workflowx.dao.ReportDAO, java.util.Map" %>
 <%
     User currentUser = (User) session.getAttribute("user");
-    if (currentUser == null || !currentUser.isEmployer()) {
+    if (currentUser == null || (!currentUser.isEmployer() && !currentUser.isAdmin())) {
         response.sendRedirect("login.jsp");
         return;
     }
     
     ReportDAO dao = new ReportDAO();
-    Map<String, Integer> overallStats = dao.getOverallStats();
-    Map<String, Integer> taskStats = dao.getTaskStatsByStatus();
-    Map<String, Integer> leaveStats = dao.getLeaveStatsByStatus();
-    Map<String, Integer> deptStats = dao.getDepartmentStats();
-    Map<String, Integer> messageStats = dao.getMessageStats();
+    
+    Map<String, Integer> overallStats;
+    Map<String, Integer> taskStats;
+    Map<String, Integer> leaveStats;
+    Map<String, Integer> deptStats;
+    Map<String, Integer> messageStats;
+    
+    if (currentUser.isAdmin()) {
+        overallStats = dao.getOverallStats();
+        taskStats = dao.getTaskStatsByStatus();
+        leaveStats = dao.getLeaveStatsByStatus();
+        deptStats = dao.getDepartmentStats();
+        messageStats = dao.getMessageStats();
+    } else {
+        // Employer sees their department's numbers only
+        overallStats = dao.getOverallStatsByDepartment(currentUser.getDepartment(), currentUser.getUserId());
+        taskStats = dao.getTaskStatsByStatusAndEmployer(currentUser.getUserId());
+        leaveStats = dao.getLeaveStatsByStatusAndDepartment(currentUser.getDepartment());
+        deptStats = dao.getDepartmentStats();
+        messageStats = dao.getMessageStatsByDepartment(currentUser.getDepartment());
+    }
+
 User user = (User) session.getAttribute("user");
     String theme = "LIGHT";
 
@@ -524,11 +541,13 @@ body.dark-mode {
                 <div class="label">Active employees</div>
             </div>
             
-            <div class="stat-card orange">
-                <h3>Employers</h3>
-                <div class="number"><%= overallStats.getOrDefault("totalEmployers", 0) %></div>
-                <div class="label">Managers</div>
-            </div>
+            <% if (currentUser.isAdmin()) { %>
+    <div class="stat-card orange">
+        <h3>Employers</h3>
+        <div class="number"><%= overallStats.getOrDefault("totalEmployers", 0) %></div>
+        <div class="label">Managers</div>
+    </div>
+<% } %>
             
             <div class="stat-card purple">
                 <h3>Total Messages</h3>

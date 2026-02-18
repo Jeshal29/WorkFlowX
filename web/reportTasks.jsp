@@ -21,14 +21,20 @@ boolean isAdmin = currentUser.isAdmin();
 /* ===== Task Data ===== */
 ReportDAO dao = new ReportDAO();
 
-String statusFilter = request.getParameter("status");
-if (statusFilter == null || statusFilter.isEmpty()) {
-    statusFilter = "PENDING";
-}
+String selectedStatus = request.getParameter("status");
+    if (selectedStatus == null) selectedStatus = "PENDING";
 
-List<Map<String, Object>> tasks = dao.getTasksByStatus(statusFilter);
-Map<String, Integer> taskStats = dao.getTaskStatsByStatus();
+    List<Map<String, Object>> tasks;
+    Map<String, Integer> taskStats;
 
+    if (currentUser.isAdmin()) {
+        tasks = dao.getTasksByStatus(selectedStatus);
+        taskStats = dao.getTaskStatsByStatus();
+    } else {
+        // Employer sees only tasks THEY assigned
+        tasks = dao.getTasksByStatusAndEmployer(selectedStatus, currentUser.getUserId());
+        taskStats = dao.getTaskStatsByStatusAndEmployer(currentUser.getUserId());
+    }
 SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
 String source = request.getParameter("source");
 String navProfilePic = null;
@@ -586,22 +592,22 @@ body {
 
     <div class="filter-tabs">
     <a href="reportTasks.jsp?status=PENDING<%= source!=null ? "&source="+source : "" %>"
-       class="<%= "PENDING".equals(statusFilter)?"active":"" %>">
+       class="<%= "PENDING".equals(selectedStatus)?"active":"" %>">
        Pending
     </a>
 
     <a href="reportTasks.jsp?status=IN_PROGRESS<%= source!=null ? "&source="+source : "" %>"
-       class="<%= "IN_PROGRESS".equals(statusFilter)?"active":"" %>">
+       class="<%= "IN_PROGRESS".equals(selectedStatus)?"active":"" %>">
        In Progress
     </a>
 
     <a href="reportTasks.jsp?status=COMPLETED<%= source!=null ? "&source="+source : "" %>"
-       class="<%= "COMPLETED".equals(statusFilter)?"active":"" %>">
+       class="<%= "COMPLETED".equals(selectedStatus)?"active":"" %>">
        Completed
     </a>
 
     <a href="reportTasks.jsp?status=OVERDUE<%= source!=null ? "&source="+source : "" %>"
-       class="<%= "OVERDUE".equals(statusFilter)?"active":"" %>">
+       class="<%= "OVERDUE".equals(selectedStatus)?"active":"" %>">
        Overdue
     </a>
 </div>
@@ -609,7 +615,7 @@ body {
 
     <% if (tasks.isEmpty()) { %>
         <div class="no-data">
-            No <%= statusFilter.toLowerCase().replace("_"," ") %> tasks found
+            No <%= selectedStatus.toLowerCase().replace("_"," ") %> tasks found
         </div>
     <% } else { 
         for (Map<String,Object> task : tasks) { %>

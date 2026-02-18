@@ -471,7 +471,12 @@ String navProfilePic = null;
     <a href="employerDashboard.jsp" class="dashboard-btn">← Back to Dashboard</a>
 </div>
 </div>
-
+<% if (!currentUser.isAdmin()) { %>
+        <div style="background:#fff3cd; border:1px solid #ffc107; border-radius:8px;
+                    padding:12px 20px; margin-bottom:20px; color:#856404;">
+            📊 You are viewing reports for your department: <strong><%= currentUser.getDepartment() %></strong>
+        </div>
+    <% } %>
 <div class="container">
     <div class="page-header">
         <h1>Select a Report</h1>
@@ -522,7 +527,7 @@ String navProfilePic = null;
         </a>
 
        
-        </a>
+        
     </div>
 </div>
 

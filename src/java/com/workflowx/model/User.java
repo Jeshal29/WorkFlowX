@@ -148,16 +148,17 @@ public class User {
     }
     
     // Utility methods
-    public boolean isAdmin() {
-        return "ADMIN".equalsIgnoreCase(this.role);
-    }
-    public boolean isEmployer() {
-        return "EMPLOYER".equalsIgnoreCase(this.role);
-    }
-    
-    public boolean isEmployee() {
-        return "EMPLOYEE".equalsIgnoreCase(this.role);
-    }
+   public boolean isEmployer() {
+    return "EMPLOYER".equalsIgnoreCase(this.role);
+}
+
+public boolean isEmployee() {
+    return "EMPLOYEE".equalsIgnoreCase(this.role);
+}
+
+public boolean isAdmin() {
+    return "ADMIN".equalsIgnoreCase(this.role);
+}
     
     @Override
     public String toString() {

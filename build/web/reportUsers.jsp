@@ -11,7 +11,14 @@ if (currentUser == null ||
 }
 boolean isAdmin = currentUser.isAdmin();
 ReportDAO dao = new ReportDAO();
-List<Map<String, Object>> users = dao.getAllUsersReport();
+ List<Map<String, Object>> users;
+
+    if (currentUser.isAdmin()) {
+        users = dao.getAllUsersReport();  // Admin sees everyone including employers
+    } else {
+        // Employer sees only employees in their own department
+        users = dao.getUsersReportByDepartment(currentUser.getDepartment());
+    }
 
 if (users == null) {
     users = new ArrayList<>();
@@ -513,8 +520,9 @@ body.dark-mode {
 <div class="container">
 
 <div class="page-header">
-    <h1>All Users</h1>
-    <p>Total Users: <%= users.size() %></p>
+   <% if (!currentUser.isAdmin()) { %>
+        <p style="color:#666; margin-top:5px;">Showing employees in: <strong><%= currentUser.getDepartment() %></strong></p>
+    <% } %>
 </div>
 
 <div class="table-container">

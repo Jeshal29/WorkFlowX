@@ -28,8 +28,9 @@ if (role.equals("ADMIN")) {
     activeEmployees = userDAO.getUsersByStatus(true);
     inactiveEmployees = userDAO.getUsersByStatus(false);
 } else {
-    activeEmployees = userDAO.getActiveEmployees();
-    inactiveEmployees = userDAO.getInactiveEmployees();
+    // Employer sees only their department
+    activeEmployees = userDAO.getEmployeesByDepartmentAndStatus(currentUser.getDepartment(), true);
+    inactiveEmployees = userDAO.getEmployeesByDepartmentAndStatus(currentUser.getDepartment(), false);
 }
 String source = request.getParameter("source");
 

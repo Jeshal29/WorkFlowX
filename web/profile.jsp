@@ -522,6 +522,23 @@
             grid-template-columns: 1fr !important;
         }
     }
+    .remove-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: none;
+    background: #ff4d4d;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    transition: 0.3s;
+}
+
+.remove-btn:hover {
+    background: #cc0000;
+    transform: scale(1.1);
+}
 
 </style>
 </head>
@@ -543,22 +560,39 @@
             <div class="profile-header">
                 <form id="profilePicForm" action="UploadProfilePicServlet" method="post" enctype="multipart/form-data">
                     <div class="profile-picture-container">
-                        <img src="<%= profilePicPath %>" 
-                             alt="<%= user.getFullName() %>" 
-                             class="profile-picture"
-                             id="profileImg">
-                        <label class="upload-overlay" title="Change Profile Picture">
-                            📷
-                            <input type="file" 
-                                   name="profilePicture" 
-                                   accept="image/*"
-                                   onchange="previewAndUpload(this)">
-                        </label>
-                    </div>
-                </form>
-                <div class="user-name"><%= user.getFullName() %></div>
-                <div class="user-role"><%= user.getRole() %> • <%= user.getDepartment() %></div>
-            </div>
+
+    <img src="<%= profilePicPath %>" 
+         alt="<%= user.getFullName() %>" 
+         class="profile-picture"
+         id="profileImg">
+
+    <!-- Upload Button -->
+    <label class="upload-overlay" title="Change Profile Picture">
+        📷
+        <input type="file" 
+               name="profilePicture" 
+               accept="image/*"
+               onchange="previewAndUpload(this)">
+    </label>
+
+</form> <!-- close upload form BEFORE remove -->
+
+<% if (profilePic != null && !profilePic.isEmpty() && !profilePic.equals("default.jpg")) { %>
+
+    <!-- Remove Button (separate form) -->
+    <form action="RemoveProfilePicServlet" method="post" 
+          style="position:absolute; top:10px; right:10px;">
+        <button type="submit" class="remove-btn" title="Remove Picture">
+            ✕
+        </button>
+    </form>
+
+<% } %>
+
+<form id="profilePicForm" action="UploadProfilePicServlet" 
+      method="post" enctype="multipart/form-data">
+</div>
+
             
             <!-- Profile Body -->
             <div class="profile-body">
@@ -597,9 +631,16 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Department</label>
-                            <input type="text" name="department" value="<%= user.getDepartment() != null ? user.getDepartment() : "" %>">
-                        </div>
+    <label>Department</label>
+    <select name="department">
+        <option value="">-- Select Department --</option>
+        <% String[] depts = {"HR","IT","Finance","Sales","Marketing","Development","Support"};
+           String userDept = user.getDepartment() != null ? user.getDepartment() : "";
+           for (String d : depts) { %>
+            <option value="<%= d %>" <%= d.equals(userDept) ? "selected" : "" %>><%= d %></option>
+        <% } %>
+    </select>
+</div>
                     </div>
                     
                     <div class="btn-group">

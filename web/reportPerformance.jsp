@@ -8,7 +8,14 @@
     }
     
     ReportDAO dao = new ReportDAO();
-    List<Map<String, Object>> performance = dao.getEmployeePerformance();
+    List<Map<String, Object>> performance;
+
+    if (currentUser.isAdmin()) {
+        performance = dao.getEmployeePerformance();
+    } else {
+        // Employer sees only their department's employees
+        performance = dao.getEmployeePerformanceByDepartment(currentUser.getDepartment());
+    }
     User user = (User) session.getAttribute("user");
     String theme = "LIGHT";
 

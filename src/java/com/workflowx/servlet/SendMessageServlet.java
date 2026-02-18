@@ -13,6 +13,7 @@ import java.nio.file.Path;
 @WebServlet("/SendMessageServlet")
 @MultipartConfig // Required for file uploads
 public class SendMessageServlet extends HttpServlet {
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws IOException, ServletException {
 
@@ -34,15 +35,30 @@ public class SendMessageServlet extends HttpServlet {
 
         // ===== Handle file upload =====
         Part filePart = request.getPart("attachment");
-        String attachmentPath = "";
-        if (filePart != null && filePart.getSize() > 0) {
-            String fileName = Path.of(filePart.getSubmittedFileName()).getFileName().toString();
-            String uploadDir = getServletContext().getRealPath("/uploads");
-            new File(uploadDir).mkdirs();
-            String filePath = uploadDir + File.separator + System.currentTimeMillis() + "_" + fileName;
-            filePart.write(filePath);
-            attachmentPath = "uploads/" + new File(filePath).getName(); // browser path
-        }
+String attachmentPath = "";
+
+if (filePart != null && filePart.getSize() > 0) {
+
+    String originalFileName = Path.of(filePart.getSubmittedFileName())
+                                  .getFileName()
+                                  .toString();
+
+    String newFileName = System.currentTimeMillis() + "_" + originalFileName;
+
+    String uploadDir = "C:/EmployeeAppUploads";
+
+    File uploadFolder = new File(uploadDir);
+    if (!uploadFolder.exists()) {
+        uploadFolder.mkdirs();
+    }
+
+    String filePath = uploadDir + File.separator + newFileName;
+    filePart.write(filePath);
+
+    // store only filename in DB
+    attachmentPath = newFileName;
+}
+
 
         // Block only if both are empty
         if (messageText.trim().isEmpty() && attachmentPath.trim().isEmpty()) {

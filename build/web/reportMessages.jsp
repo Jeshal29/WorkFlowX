@@ -2,15 +2,26 @@
 <%@ page import="com.workflowx.model.User, com.workflowx.dao.ReportDAO, java.util.*, java.text.SimpleDateFormat" %>
 <%
     User currentUser = (User) session.getAttribute("user");
-    if (currentUser == null || !currentUser.isEmployer()) {
-        response.sendRedirect("login.jsp");
-        return;
+    if (currentUser == null || (!currentUser.isEmployer() && !currentUser.isAdmin())) {
+    response.sendRedirect("login.jsp");
+    return;
+}
+
+ReportDAO dao = new ReportDAO();
+ List<Map<String, Object>> messageActivity;
+    List<Map<String, Object>> topSenders;
+    Map<String, Integer> msgStats;
+
+    if (currentUser.isAdmin()) {
+        messageActivity = dao.getMessageActivity();
+        topSenders = dao.getTopMessageSenders();
+        msgStats = dao.getMessageStats();
+    } else {
+        // Employer sees only their department employees' messages
+        messageActivity = dao.getMessageActivityByDepartment(currentUser.getDepartment());
+        topSenders = dao.getTopMessageSendersByDepartment(currentUser.getDepartment());
+        msgStats = dao.getMessageStatsByDepartment(currentUser.getDepartment());
     }
-    
-    ReportDAO dao = new ReportDAO();
-    Map<String, Integer> messageStats = dao.getMessageStats();
-    List<Map<String, Object>> topSenders = dao.getTopMessageSenders();
-    List<Map<String, Object>> messageActivity = dao.getMessageActivity();
     
     SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
 User user = (User) session.getAttribute("user");
@@ -552,28 +563,29 @@ body.dark-mode{
         <div class="stats-grid">
             <div class="stat-card blue">
                 <h3>Total Messages</h3>
-                <div class="number"><%= messageStats.getOrDefault("total", 0) %></div>
+                <div class="number"><%= msgStats.getOrDefault("total", 0) %></div>
             </div>
             
             <div class="stat-card green">
                 <h3>Read Messages</h3>
-                <div class="number"><%= messageStats.getOrDefault("read", 0) %></div>
+                <div class="number"><%= msgStats.getOrDefault("read", 0) %></div>
             </div>
             
             <div class="stat-card orange">
                 <h3>Unread Messages</h3>
-                <div class="number"><%= messageStats.getOrDefault("unread", 0) %></div>
+                <div class="number"><%= msgStats.getOrDefault("unread", 0) %></div>
             </div>
             
             <div class="stat-card red">
                 <h3>Filtered</h3>
-                <div class="number"><%= messageStats.getOrDefault("censored", 0) %></div>
+                <div class="number"><%= msgStats.getOrDefault("censored", 0) %></div>
             </div>
         </div>
         
         <!-- Top Message Senders -->
         <div class="section">
             <h2>Top 10 Message Senders</h2>
+            
             <div class="top-senders">
                 <% int rank = 1; %>
                 <% for (Map<String, Object> sender : topSenders) { %>

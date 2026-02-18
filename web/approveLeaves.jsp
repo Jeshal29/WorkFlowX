@@ -30,7 +30,8 @@
     }
     
     LeaveDAO leaveDAO = new LeaveDAO();
-    List<Leave> pendingLeaves = leaveDAO.getAllPendingLeaves();
+// Only show pending leaves from employer's own department
+List<Leave> pendingLeaves = leaveDAO.getPendingLeavesByDepartment(currentUser.getDepartment());
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
 %>
 <!DOCTYPE html>

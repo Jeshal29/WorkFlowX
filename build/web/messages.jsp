@@ -554,7 +554,14 @@ body {
                             <% if(msg.getSenderId()==currentUser.getUserId()){ %>
                                 <div class="actions">
                                     <span style="color:blue;" onclick="showEdit(<%=msg.getMessageId()%>)">✏ Edit</span>
-                                    <span style="color:red;" onclick="deleteMessage(<%=msg.getMessageId()%>)">❌ Delete</span>
+                                    <form action="DeleteMessageServlet" method="post" style="display:inline;">
+    <input type="hidden" name="messageId" value="<%= msg.getMessageId() %>">
+    <input type="hidden" name="chatUserId" value="<%= selectedUser.getUserId() %>">
+    <button type="submit" style="border:none; background:none; color:red; cursor:pointer;">
+        ❌ Delete
+    </button>
+</form>
+
                                 </div>
                             <% } %>
                         </div>
@@ -614,15 +621,6 @@ function saveEdit(id){
     }).then(() => location.reload());
 }
 
-function deleteMessage(id){
-    if(confirm("Delete this message?")){
-        fetch('DeleteMessageServlet', {
-            method:'POST',
-            headers:{'Content-Type':'application/x-www-form-urlencoded'},
-            body:`messageId=${id}`
-        }).then(() => location.reload());
-    }
-}
 
 // Mark as read
 <% if (selectedUser != null) { %>

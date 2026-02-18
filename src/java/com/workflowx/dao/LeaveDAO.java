@@ -129,4 +129,32 @@ public class LeaveDAO {
         leave.setRemarks(rs.getString("remarks"));
         return leave;
     }
+    public List<Leave> getPendingLeavesByDepartment(String department) {
+    List<Leave> leaves = new ArrayList<>();
+    String sql = "SELECT l.*, u.full_name as employee_name FROM leaves l " +
+                 "JOIN users u ON l.employee_id = u.user_id " +
+                 "WHERE l.status = 'PENDING' AND u.department = ? " +
+                 "ORDER BY l.applied_at ASC";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, department);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Leave leave = new Leave();
+            leave.setLeaveId(rs.getInt("leave_id"));
+            leave.setEmployeeId(rs.getInt("employee_id"));
+            leave.setEmployeeName(rs.getString("employee_name"));
+            leave.setLeaveType(rs.getString("leave_type"));
+            leave.setStartDate(rs.getDate("start_date"));
+            leave.setEndDate(rs.getDate("end_date"));
+            leave.setReason(rs.getString("reason"));
+            leave.setStatus(rs.getString("status"));
+            leave.setAppliedAt(rs.getTimestamp("applied_at"));
+            leaves.add(leave);
+        }
+    } catch (SQLException e) {
+        System.err.println("Error in getPendingLeavesByDepartment: " + e.getMessage());
+    }
+    return leaves;
+}
 }

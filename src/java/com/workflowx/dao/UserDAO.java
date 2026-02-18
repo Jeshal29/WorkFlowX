@@ -561,4 +561,55 @@ public class UserDAO {
     }
     return users;
 }
+        public List<User> getEmployeesByDepartment(String department) {
+    List<User> employees = new ArrayList<>();
+    String sql = "SELECT * FROM users WHERE role = 'EMPLOYEE' AND is_active = TRUE " +
+                 "AND department = ? ORDER BY full_name";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, department);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            User user = new User();
+            user.setUserId(rs.getInt("user_id"));
+            user.setUsername(rs.getString("username"));
+            user.setEmail(rs.getString("email"));
+            user.setFullName(rs.getString("full_name"));
+            user.setRole(rs.getString("role"));
+            user.setDepartment(rs.getString("department"));
+            user.setProfilePicture(rs.getString("profile_picture"));
+            employees.add(user);
+        }
+    } catch (SQLException e) {
+        System.err.println("Error in getEmployeesByDepartment: " + e.getMessage());
+    }
+    return employees;
+}
+        public List<User> getEmployeesByDepartmentAndStatus(String department, boolean active) {
+    List<User> employees = new ArrayList<>();
+    String sql = "SELECT * FROM users WHERE role = 'EMPLOYEE' AND department = ? " +
+                 "AND is_active = ? ORDER BY full_name";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, department);
+        stmt.setBoolean(2, active);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            User user = new User();
+            user.setUserId(rs.getInt("user_id"));
+            user.setUsername(rs.getString("username"));
+            user.setEmail(rs.getString("email"));
+            user.setFullName(rs.getString("full_name"));
+            user.setRole(rs.getString("role"));
+            user.setDepartment(rs.getString("department"));
+            user.setProfilePicture(rs.getString("profile_picture"));
+            user.setActive(rs.getBoolean("is_active"));
+            employees.add(user);
+        }
+    } catch (SQLException e) {
+        System.err.println("Error in getEmployeesByDepartmentAndStatus: " + e.getMessage());
+    }
+    return employees;
+}
+        
     }
