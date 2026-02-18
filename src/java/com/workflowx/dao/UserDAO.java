@@ -20,20 +20,22 @@ public class UserDAO {
      */
     public boolean register(User user) {
         String sql = "INSERT INTO users (username, email, password_hash, full_name, " +
-                    "role, department, theme_preference, is_active) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+             "role, department, profile_picture, theme_preference) " +
+             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getEmail());
-            stmt.setString(3, user.getPasswordHash());
-            stmt.setString(4, user.getFullName());
-            stmt.setString(5, user.getRole());
-            stmt.setString(6, user.getDepartment());
-            stmt.setString(7, user.getThemePreference());
-            stmt.setBoolean(8, user.isActive());
+stmt.setString(2, user.getEmail());
+stmt.setString(3, user.getPasswordHash());
+stmt.setString(4, user.getFullName());
+stmt.setString(5, user.getRole());
+stmt.setString(6, user.getDepartment());
+stmt.setString(7, user.getProfilePicture());
+stmt.setString(8, user.getThemePreference());
+
             
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
