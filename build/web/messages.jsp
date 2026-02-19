@@ -541,7 +541,13 @@ body {
                             <div id="text-<%=msg.getMessageId()%>">
                                 <%= msg.getMessageContent()!=null ? msg.getMessageContent() : "" %>
                                 <% if(msg.getAttachmentPath()!=null && !msg.getAttachmentPath().isEmpty()) { %>
-                                    <br><a href="<%=msg.getAttachmentPath()%>" target="_blank" style="color: inherit;">📎 Attachment</a>
+                                    <br><%
+    String attachPath = msg.getAttachmentPath();
+    // Normalize path - remove leading slash and "uploads/" if present
+    if (attachPath.startsWith("/")) attachPath = attachPath.substring(1);
+    if (!attachPath.startsWith("uploads/")) attachPath = "uploads/" + attachPath;
+%>
+<a href="<%= request.getContextPath() %>/<%= attachPath %>" target="_blank" downloadstyle="color: inherit;">📎 Attachment</a>
                                 <% } %>
                             </div>
 

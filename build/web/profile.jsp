@@ -561,10 +561,19 @@
                 <form id="profilePicForm" action="UploadProfilePicServlet" method="post" enctype="multipart/form-data">
                     <div class="profile-picture-container">
 
-    <img src="<%= profilePicPath %>" 
-         alt="<%= user.getFullName() %>" 
-         class="profile-picture"
-         id="profileImg">
+    <%
+    String finalPath = profilePicPath;
+    // If it's not a data URL (SVG fallback), normalize the path
+    if (!finalPath.startsWith("data:")) {
+        if (finalPath.startsWith("/")) finalPath = finalPath.substring(1);
+        if (!finalPath.startsWith("uploads/")) finalPath = "uploads/" + finalPath;
+        finalPath = request.getContextPath() + "/" + finalPath;
+    }
+%>
+<img src="<%= finalPath %>" 
+     alt="<%= user.getFullName() %>" 
+     class="profile-picture"
+     id="profileImg">
 
     <!-- Upload Button -->
     <label class="upload-overlay" title="Change Profile Picture">

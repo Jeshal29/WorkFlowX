@@ -45,12 +45,11 @@ if (filePart != null && filePart.getSize() > 0) {
 
     String newFileName = System.currentTimeMillis() + "_" + originalFileName;
 
-    String uploadDir = "C:/EmployeeAppUploads";
-
-    File uploadFolder = new File(uploadDir);
-    if (!uploadFolder.exists()) {
-        uploadFolder.mkdirs();
-    }
+    String uploadPath = "C:/project/EmployeeApp1/uploads/attachments/";
+File uploadDir = new File(uploadPath);
+if (!uploadDir.exists()) {
+    uploadDir.mkdirs();
+}
 
     String filePath = uploadDir + File.separator + newFileName;
     filePart.write(filePath);
