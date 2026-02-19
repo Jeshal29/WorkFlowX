@@ -62,8 +62,36 @@
         .form-group input[type="file"] { display: none; }
 
         /* Password toggle */
-        .password-wrapper { position: relative; }
-        .password-wrapper input { padding-right: 40px !important; }
+        .password-wrapper { 
+    position: relative; 
+}
+.password-wrapper input { 
+    padding-right: 70px !important;  /* Changed from 40px to make room for indicator */
+}
+
+/* Password match/mismatch indicator */
+.password-indicator {
+    position: absolute;
+    right: 40px;  /* Positioned between input and toggle button */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    font-weight: bold;
+    display: none;  /* Hidden by default */
+}
+
+/* Green tick when passwords match */
+.password-indicator.match { 
+    color: #28a745; 
+    display: inline; 
+}
+
+/* Red cross when passwords don't match */
+.password-indicator.mismatch { 
+    color: #dc3545; 
+    display: inline; 
+}
+
         .toggle-password {
             position: absolute; right: 10px; top: 50%;
             transform: translateY(-50%);
@@ -362,10 +390,12 @@
         </div>
 
         <div class="form-group">
-            <label>Confirm Password <span class="required">*</span></label>
-            <div class="password-wrapper">
-                <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Re-enter password">
-                <button type="button" class="toggle-password" onclick="togglePwd('confirmPassword', this)">
+    <label>Confirm Password <span class="required">*</span></label>
+    <div class="password-wrapper">
+        <input type="password" id="confirmPassword" name="confirmPassword" required 
+               placeholder="Re-enter password" oninput="checkMatch();">
+        <span class="password-indicator" id="matchIndicator"></span>
+        <button type="button" class="toggle-password" onclick="togglePwd('confirmPassword', this)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -383,7 +413,7 @@
         <option value="Finance">Finance</option>
         <option value="Sales">Sales</option>
         <option value="Marketing">Marketing</option>
-        <option value="Operations">Operations</option>
+        <option value="Operations">Developmenet</option>
         <option value="Support">Support</option>
     </select>
 </div>
@@ -409,7 +439,25 @@ function togglePwd(fieldId, btn) {
         svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
     }
 }
-
+function checkMatch() {
+    const pwd = document.getElementById('password').value;
+    const confirm = document.getElementById('confirmPassword').value;
+    const indicator = document.getElementById('matchIndicator');
+    
+    if (confirm.length === 0) {
+        indicator.className = 'password-indicator';
+        indicator.innerHTML = '';
+        return;
+    }
+    
+    if (pwd === confirm) {
+        indicator.className = 'password-indicator match';
+        indicator.innerHTML = '✓';
+    } else {
+        indicator.className = 'password-indicator mismatch';
+        indicator.innerHTML = '✗';
+    }
+}
 function setRule(id, valid) {
     const el = document.getElementById(id);
     if (valid) {
@@ -451,7 +499,7 @@ function checkStrength(val) {
         { pct: '40%',  color: '#fd7e14', label: 'Weak' },
         { pct: '60%',  color: '#ffc107', label: 'Fair' },
         { pct: '80%',  color: '#20c997', label: 'Strong' },
-        { pct: '100%', color: '#28a745', label: 'Very Strong' },
+        { pct: '100%', color: '#28a745', label: 'Very Strong' }
     ];
 
     bar.style.width      = val.length ? levels[score].pct   : '0%';

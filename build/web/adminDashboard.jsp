@@ -360,7 +360,11 @@
         <h3>Manage Employers</h3>
         <p>Control employer accounts</p>
     </a>
-
+            <a href="adminCreateEmployer.jsp" class="card card-employees">
+        <div class="card-icon">➕</div>
+        <h3>Create Employer</h3>
+        <p>Add new employer accounts</p>
+    </a>
     <a href="allMessages.jsp" class="card card-messages">
         <div class="card-icon">💬</div>
         <h3>All Messages</h3>
