@@ -413,7 +413,7 @@
         <option value="Finance">Finance</option>
         <option value="Sales">Sales</option>
         <option value="Marketing">Marketing</option>
-        <option value="Operations">Developmenet</option>
+        <option value="Development">Development</option>
         <option value="Support">Support</option>
     </select>
 </div>
