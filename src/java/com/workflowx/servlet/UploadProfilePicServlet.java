@@ -81,11 +81,14 @@ public class UploadProfilePicServlet extends HttpServlet {
             
             // Get upload path
             String appPath = request.getServletContext().getRealPath("");
-            String uploadPath = "C:/project/EmployeeApp1/uploads/profiles/";
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-                }
+String uploadPath = appPath + File.separator + "uploads" 
+        + File.separator + "profiles";
+
+File uploadDir = new File(uploadPath);
+if (!uploadDir.exists()) {
+    uploadDir.mkdirs();
+}
+
       
             
             // Delete old profile picture if exists (except default.jpg)
@@ -99,7 +102,8 @@ public class UploadProfilePicServlet extends HttpServlet {
             
             // Save the file
             String filePath = uploadPath + File.separator + uniqueFileName;
-            filePart.write(filePath);
+           filePart.write(uploadPath + File.separator + fileName);
+
             
             // Update database
             UserDAO userDAO = new UserDAO();

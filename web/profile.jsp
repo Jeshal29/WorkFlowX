@@ -598,9 +598,6 @@
 
 <% } %>
 
-<form id="profilePicForm" action="UploadProfilePicServlet" 
-      method="post" enctype="multipart/form-data">
-</div>
 
             
             <!-- Profile Body -->
