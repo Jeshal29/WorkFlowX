@@ -1,19 +1,24 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.workflowx.util;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-/**
- *
- * @author dell
- */
+
 public class DatabaseConnection {
-    private static final String DB_URL = System.getenv("DB_URL") != null ? System.getenv("DB_URL") : "jdbc:mysql://localhost:3306/workflowx_db?useSSL=false";
-    private static final String DB_USER = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
-    private static final String DB_PASSWORD = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "8957";
+    
+    
+    private static final String DB_URL = System.getenv("DATABASE_URL") != null 
+        ? System.getenv("DATABASE_URL") 
+        : "jdbc:mysql://localhost:3306/workflowx_db?useSSL=false";
+    
+    private static final String DB_USER = System.getenv("DATABASE_USER") != null 
+        ? System.getenv("DATABASE_USER") 
+        : "root";
+    
+    private static final String DB_PASSWORD = System.getenv("DATABASE_PASSWORD") != null 
+        ? System.getenv("DATABASE_PASSWORD") 
+        : "8957";
+    
     private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
     
     public static Connection getConnection() throws SQLException {
