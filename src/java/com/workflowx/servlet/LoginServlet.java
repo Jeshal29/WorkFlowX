@@ -17,7 +17,6 @@ import java.io.IOException;
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
     
-    private UserDAO userDAO;
     
     // Add these methods to your existing LoginServlet.java
 
