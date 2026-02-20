@@ -80,14 +80,13 @@ public class UploadProfilePicServlet extends HttpServlet {
             String uniqueFileName = "user_" + user.getUserId() + "_" + System.currentTimeMillis() + fileExtension;
             
             // Get upload path
-            String appPath = request.getServletContext().getRealPath("");
-String uploadPath = appPath + File.separator + "uploads" 
-        + File.separator + "profiles";
+            // PERMANENT storage - outside build folder
+            String uploadPath = "C:/project/EmployeeApp1/uploads/profiles/";
 
-File uploadDir = new File(uploadPath);
-if (!uploadDir.exists()) {
-    uploadDir.mkdirs();
-}
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
 
       
             
@@ -102,7 +101,11 @@ if (!uploadDir.exists()) {
             
             // Save the file
             String filePath = uploadPath + File.separator + uniqueFileName;
-           filePart.write(uploadPath + File.separator + fileName);
+            filePart.write(filePath);
+
+            
+
+
 
             
             // Update database

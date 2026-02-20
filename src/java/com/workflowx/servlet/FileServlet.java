@@ -8,14 +8,13 @@ import java.io.*;
 @WebServlet("/uploads/*")
 public class FileServlet extends HttpServlet {
     
-    // Point to uploads folder in PROJECT ROOT
+    // Point to permanent uploads folder
     private static final String UPLOAD_DIR = "C:/project/EmployeeApp1/uploads/";
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Get requested file (e.g., "/profiles/image.jpg")
         String requestedFile = request.getPathInfo();
         
         if (requestedFile == null || requestedFile.equals("/")) {
@@ -29,7 +28,7 @@ public class FileServlet extends HttpServlet {
         // Build full file path
         File file = new File(UPLOAD_DIR, requestedFile);
         
-        // Security check - prevent directory traversal attacks
+        // Security check
         try {
             if (!file.getCanonicalPath().startsWith(new File(UPLOAD_DIR).getCanonicalPath())) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -54,7 +53,7 @@ public class FileServlet extends HttpServlet {
         response.setContentType(contentType);
         response.setContentLength((int) file.length());
         
-        // Set headers based on file type
+        // Set headers
         String fileName = file.getName();
         if (fileName.endsWith(".pdf") || fileName.endsWith(".jpg") || 
             fileName.endsWith(".jpeg") || fileName.endsWith(".png")) {

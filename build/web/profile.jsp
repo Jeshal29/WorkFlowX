@@ -558,45 +558,47 @@
         <div class="profile-card">
             <!-- Profile Header with Picture -->
             <div class="profile-header">
-                <form id="profilePicForm" action="UploadProfilePicServlet" method="post" enctype="multipart/form-data">
-                    <div class="profile-picture-container">
+                <div class="profile-picture-container">
 
     <%
-    String finalPath = profilePicPath;
-    // If it's not a data URL (SVG fallback), normalize the path
-    if (!finalPath.startsWith("data:")) {
-        if (finalPath.startsWith("/")) finalPath = finalPath.substring(1);
-        if (!finalPath.startsWith("uploads/")) finalPath = "uploads/" + finalPath;
-        finalPath = request.getContextPath() + "/" + finalPath;
+    String finalPath;
+    if (profilePic == null || profilePic.isEmpty() || profilePic.equals("default.jpg")) {
+        finalPath = profilePicPath;
+    } else {
+        finalPath = request.getContextPath() + "/uploads/profiles/" + profilePic;
     }
-%>
-<img src="<%= finalPath %>" 
-     alt="<%= user.getFullName() %>" 
-     class="profile-picture"
-     id="profileImg">
+    %>
 
-    <!-- Upload Button -->
-    <label class="upload-overlay" title="Change Profile Picture">
-        📷
-        <input type="file" 
-               name="profilePicture" 
-               accept="image/*"
-               onchange="previewAndUpload(this)">
-    </label>
+    <img src="<%= finalPath %>" 
+         alt="<%= user.getFullName() %>" 
+         class="profile-picture"
+         id="profileImg">
 
-</form> <!-- close upload form BEFORE remove -->
+    <!-- Upload Form -->
+    <form id="profilePicForm" action="UploadProfilePicServlet" 
+          method="post" enctype="multipart/form-data">
 
-<% if (profilePic != null && !profilePic.isEmpty() && !profilePic.equals("default.jpg")) { %>
+        <label class="upload-overlay" title="Change Profile Picture">
+            📷
+            <input type="file" 
+                   name="profilePicture" 
+                   accept="image/*"
+                   onchange="previewAndUpload(this)">
+        </label>
 
-    <!-- Remove Button (separate form) -->
-    <form action="RemoveProfilePicServlet" method="post" 
-          style="position:absolute; top:10px; right:10px;">
-        <button type="submit" class="remove-btn" title="Remove Picture">
-            ✕
-        </button>
     </form>
 
-<% } %>
+    <% if (profilePic != null && !profilePic.isEmpty() && !profilePic.equals("default.jpg")) { %>
+        <form action="RemoveProfilePicServlet" method="post"
+              style="position:absolute; top:10px; right:10px;">
+            <button type="submit" class="remove-btn" title="Remove Picture">
+                ✕
+            </button>
+        </form>
+    <% } %>
+
+</div>
+
 
 
             
