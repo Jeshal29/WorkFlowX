@@ -1,19 +1,43 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.workflowx.model.User, com.workflowx.dao.ReportDAO, java.util.*, java.text.SimpleDateFormat, java.sql.Timestamp, java.util.Calendar" %>
 <%
+    String userIdParam = request.getParameter("userId"); // get userId from URL
+    List<Map<String, Object>> censoredMessages;
+List<Map<String, Object>> topViolators;
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
         response.sendRedirect("login.jsp");
         return;
     }
-    
+     ReportDAO dao = new ReportDAO();
+      boolean isAdmin = currentUser.isAdmin();
     // Check access - only EMPLOYER and ADMIN can view
-    if (!currentUser.isEmployer() && !currentUser.isAdmin()) {
-        response.sendRedirect("employeeDashboard.jsp");
-        return;
+    if (currentUser.isAdmin()) {
+    if (userIdParam != null && !userIdParam.isEmpty()) {
+        // Admin wants messages of a single user
+        censoredMessages = dao.getCensoredMessagesByUser(Integer.parseInt(userIdParam));
+        // Only show the clicked user in top violators
+        Map<String, Object> singleViolator = dao.getViolatorByUserId(Integer.parseInt(userIdParam));
+        topViolators = new ArrayList<>();
+        if (singleViolator != null) topViolators.add(singleViolator);
+    } else {
+        censoredMessages = dao.getCensoredMessages();
+        topViolators = dao.getTopViolators();
     }
-    boolean isAdmin = currentUser.isAdmin();
-    ReportDAO dao = new ReportDAO();
+} else {
+    if (userIdParam != null && !userIdParam.isEmpty()) {
+        censoredMessages = dao.getCensoredMessagesByUserAndDepartment(
+                                Integer.parseInt(userIdParam), currentUser.getDepartment());
+        // Only show clicked user
+        Map<String, Object> singleViolator = dao.getViolatorByUserIdAndDept(
+                                Integer.parseInt(userIdParam), currentUser.getDepartment());
+        topViolators = new ArrayList<>();
+        if (singleViolator != null) topViolators.add(singleViolator);
+    } else {
+        censoredMessages = dao.getCensoredMessagesByDepartment(currentUser.getDepartment());
+        topViolators = dao.getTopViolatorsByDepartment(currentUser.getDepartment());
+    }
+}
     // ===== Date Filter Variables =====
 String yearParam = request.getParameter("year");
 String monthParam = request.getParameter("month");
@@ -41,20 +65,6 @@ String[] monthNames = {
 // Date formatter
 SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a");
 
-    // Get data based on role
-    List<Map<String, Object>> censoredMessages;
-    List<Map<String, Object>> topViolators;
-    
-    if (currentUser.isAdmin()) {
-        // ADMIN sees everything
-        censoredMessages = dao.getCensoredMessages();
-        topViolators = dao.getTopViolators();
-    } else {
-        // EMPLOYER sees only their department
-        censoredMessages = dao.getCensoredMessagesByDepartment(currentUser.getDepartment());
-        topViolators = dao.getTopViolatorsByDepartment(currentUser.getDepartment());
-    }
-    
    Map<String, Integer> stats;
     if (currentUser.isAdmin()) {
         stats = dao.getBadWordStats();
@@ -240,39 +250,53 @@ body {
     color:#999;
 }
 
-/* ================= TOGGLE ================= */
-.mini-toggle {
-    width:60px;
-    height:28px;
-    background:#ddd;
-    border-radius:20px;
-    padding:3px;
-    cursor:pointer;
-}
+/* MINI ICON TOGGLE */
+        .mini-toggle {
+            width: 60px;
+            height: 28px;
+            background: #ddd;
+            border-radius: 20px;
+            padding: 3px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
 
-.mini-slider {
-    width:100%;
-    height:100%;
-    position:relative;
-}
+        .mini-slider {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            font-size: 12px;
+        }
 
-.mini-slider::before {
-    content:"";
-    position:absolute;
-    width:22px;
-    height:22px;
-   background: <%= isAdmin 
-        ? "linear-gradient(135deg,#f093fb,#f5576c)" 
-        : "linear-gradient(135deg, #764ba2 0%, #667eea 100%)" %>;
-    border-radius:50%;
-    left:3px;
-    transition:0.3s ease;
-}
+        .mini-slider::before {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #667eea;
+            border-radius: 50%;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
 
-.mini-slider.active::before {
-    left:35px;
-    background:#2b2b3d;
-}
+        .mini-slider.active::before {
+            left: 35px;
+            background: #2b2b3d;
+        }
+
+        .mini-slider span {
+            z-index: 1;
+            }
+
+        /* Dark mode adjustments */
+        .dark-mode .mini-toggle {
+            background: #444;
+        }
 
 /* ================= DARK MODE ================= */
 body.dark-mode {
@@ -588,18 +612,15 @@ body.dark-mode {
     <div class="navbar">
         <h2>⚠️ Content Violations</h2>
          <div style="display:flex; align-items:center; gap:15px;">
-
-        <form action="ThemeServlet" method="post" style="margin-right:15px;">
-    
-    <div class="mini-toggle" onclick="this.closest('form').submit();">
-        <div class="mini-slider <%= theme.equals("DARK") ? "active" : "" %>">
-            <span class="icon-left">☀</span>
+        <form action="ThemeServlet" method="post">
+            <div class="mini-toggle" onclick="this.closest('form').submit();">
+                <div class="mini-slider <%= theme.equals("DARK") ? "active" : "" %>">
+                     <span class="icon-left">☀</span>
             <span class="icon-right">🌙</span>
-        </div>
-    </div>
-
-    <input type="hidden" name="currentTheme" value="<%= theme %>">
-</form>
+                </div>
+            </div>
+            <input type="hidden" name="currentTheme" value="<%= theme %>">
+        </form>
 
             <% if (navProfilePic != null) { %>
     <!-- Show uploaded profile picture -->
@@ -723,43 +744,31 @@ body.dark-mode {
                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
                        onkeyup="filterMessages()">
             </div>
-            <% if (censoredMessages.isEmpty()) { %>
-                <div class="no-data">No filtered messages</div>
-            <% } else { %>
-                <div id="messagesList">
-                <% for (Map<String, Object> msg : censoredMessages) { %>
-                    <div class="violation-card" data-sender="<%= msg.get("senderName").toString().toLowerCase() %>"
-                         data-receiver="<%= msg.get("receiverName").toString().toLowerCase() %>"
-                         data-content="<%= msg.get("messageContent").toString().toLowerCase() %>">
-                        <div class="header">
-                            <div class="sender">
-        From: 
-        <a href="reportUserDetail.jsp?userId=<%= msg.get("senderId") %>" class="user-link">
-            <%= msg.get("senderName") %>
-        </a>
-        <% if (isAdmin && msg.get("senderRole") != null) { %>
-            <span class="role-badge role-<%= msg.get("senderRole").toString().toLowerCase() %>">
-                <%= msg.get("senderRole") %>
-            </span>
-        <% } %>
-        → <%= msg.get("receiverName") %>
-    </div>
-                            <div class="date"><%= sdf.format((Timestamp)msg.get("sentAt")) %></div>
-                        </div>
-                        
-                        <% if (msg.get("subject") != null && !msg.get("subject").toString().isEmpty()) { %>
-                            <div class="subject">Subject: <%= msg.get("subject") %></div>
-                        <% } %>
-                        
-                        <div class="label">Filtered Content:</div>
-                        <div class="content"><%= msg.get("messageContent") %></div>
-                        
-                        <div class="label">Original Content (Before Filtering):</div>
-                        <div class="original"><%= msg.get("originalContent") %></div>
-                    </div>
-                <% } %>
+           <% if (censoredMessages.isEmpty()) { %>
+    <div class="no-data">No filtered messages</div>
+<% } else { %>
+    <div id="messagesList">  <!-- ✅ Add this wrapper -->
+        <% for (Map<String,Object> msg : censoredMessages) { %>
+        <div class="violation-card"
+             data-sender="<%= msg.get("senderName").toString().toLowerCase() %>"
+             data-receiver="<%= msg.get("receiverName").toString().toLowerCase() %>"
+             data-content="<%= msg.get("messageContent").toString().toLowerCase() %>">
+            <div class="header">
+                <div class="sender">
+                    From: <%= msg.get("senderName") %> → <%= msg.get("receiverName") %>
                 </div>
-            <% } %>
+                <div class="date"><%= sdf.format((Timestamp)msg.get("sentAt")) %></div>
+            </div>
+            <div class="label">Filtered Content:</div>
+            <div class="content"><%= msg.get("messageContent") %></div>
+            <div class="label">Original Content (Before Filtering):</div>
+            <div class="original">
+    <%= msg.get("originalContent") != null ? msg.get("originalContent") : "N/A" %>
+</div>
+        </div>
+        <% } %>
+    </div>  <!-- ✅ Closes messagesList -->
+<% } %>
         </div>
     </div>
     
@@ -794,22 +803,22 @@ body.dark-mode {
     }
     
     function filterMessages() {
-        const input = document.getElementById('searchMessagesInput');
-        const filter = input.value.toLowerCase();
-        const cards = document.querySelectorAll('.violation-card');
-        
-        cards.forEach(card => {
-            const sender = card.getAttribute('data-sender');
-            const receiver = card.getAttribute('data-receiver');
-            const content = card.getAttribute('data-content');
-            
-            if (sender.includes(filter) || receiver.includes(filter) || content.includes(filter)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
+    const input = document.getElementById('searchMessagesInput');
+    const filter = input.value.toLowerCase();
+    const cards = document.querySelectorAll('.violation-card');
+
+    cards.forEach(card => {
+        const sender = card.getAttribute('data-sender');
+        const receiver = card.getAttribute('data-receiver');
+        const content = card.getAttribute('data-content');
+
+        if (sender.includes(filter) || receiver.includes(filter) || content.includes(filter)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
     </script>
 </body>
 </html>

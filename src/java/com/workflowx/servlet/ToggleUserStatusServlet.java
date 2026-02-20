@@ -56,7 +56,7 @@ public class ToggleUserStatusServlet extends HttpServlet {
             if (returnPage != null && !returnPage.isEmpty()) {
                 redirectPage = returnPage;
             } else if (currentUser.isAdmin()) {
-                redirectPage = "manageUsers.jsp"; // Admin goes to manageUsers
+                redirectPage = "manageEmployers.jsp"; // Admin goes to manageUsers
             }
             
             // Redirect back with success message
@@ -65,11 +65,11 @@ public class ToggleUserStatusServlet extends HttpServlet {
             
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            String redirect = (currentUser.isAdmin()) ? "manageUsers.jsp" : "employees.jsp";
+            String redirect = (currentUser.isAdmin()) ? "manageEmployers.jsp" : "employees.jsp";
             response.sendRedirect(redirect + "?error=invalid_id");
         } catch (Exception e) {
             e.printStackTrace();
-            String redirect = (currentUser.isAdmin()) ? "manageUsers.jsp" : "employees.jsp";
+            String redirect = (currentUser.isAdmin()) ? "manageEmployers.jsp" : "employees.jsp";
             response.sendRedirect(redirect + "?error=update_failed");
         }
     }
@@ -84,7 +84,7 @@ public class ToggleUserStatusServlet extends HttpServlet {
         if (currentUser == null) {
             response.sendRedirect("login.jsp");
         } else if (currentUser.isAdmin()) {
-            response.sendRedirect("manageUsers.jsp");
+            response.sendRedirect("manageEmployers.jsp");
         } else if (currentUser.isEmployer()) {
             response.sendRedirect("employees.jsp");
         } else {

@@ -20,7 +20,7 @@ if (currentUser.getThemePreference() != null) {
 }
 
 ReportDAO dao = new ReportDAO();
-
+String source = request.getParameter("source");
 // Month & Year filter for Admin
 Calendar cal = Calendar.getInstance();
 String yearParam = request.getParameter("year");
@@ -470,16 +470,17 @@ input.search { width:100%; padding:10px; border:1px solid #ddd; border-radius:5p
     </a>
 <% } %>
 
-         <a href="#" class="dashboard-btn" onclick="window.history.back(); return false;">← Back</a>
-        
-</a>
+        <% if ("globalReports".equals(source)) { %>
+    <a href="globalReports.jsp" class="dashboard-btn">
+        ← Back
+    </a>
+<% } %>
 
-    <!-- Dashboard Button -->
-    <% if (currentUser.isAdmin()) { %>
+          <% if ("globalReports".equals(source)) { %>
         <a href="adminDashboard.jsp" class="dashboard-btn">Dashboard</a>
-    <% } else { %>
-        <a href="employerDashboard.jsp" class="dashboard-btn">Dashboard</a>
-    <% } %>
+         <% } else { %>
+          <a href="adminDashboard.jsp" class="dashboard-btn">← Back to Dashboard</a>
+          <% } %>
     </div>
 </div>
 
@@ -525,13 +526,14 @@ input.search { width:100%; padding:10px; border:1px solid #ddd; border-radius:5p
                 <div style="margin-top:10px;"><%= msg.get("messageContent") %></div>
 
                 <% if (msg.get("attachmentPath") != null && 
-                       !msg.get("attachmentPath").toString().isEmpty()) { %>
-                    <div style="margin-top:8px;">
-                        <a href="uploads/<%= msg.get("attachmentPath") %>" target="_blank">
-                            📎 View Attachment
-                        </a>
-                    </div>
-                <% } %>
+       !msg.get("attachmentPath").toString().isEmpty()) { %>
+    <div style="margin-top:8px;">
+        <a href="<%= request.getContextPath() %>/uploads/attachments/<%= msg.get("attachmentPath") %>" 
+           target="_blank">
+            📎 View Attachment
+        </a>
+    </div>
+<% } %>
 
             </div>
         <% } %>
@@ -559,13 +561,14 @@ input.search { width:100%; padding:10px; border:1px solid #ddd; border-radius:5p
                 <div style="margin-top:10px;"><%= msg.get("messageContent") %></div>
 
                 <% if (msg.get("attachmentPath") != null && 
-                       !msg.get("attachmentPath").toString().isEmpty()) { %>
-                    <div style="margin-top:8px;">
-                        <a href="uploads/<%= msg.get("attachmentPath") %>" target="_blank">
-                            📎 View Attachment
-                        </a>
-                    </div>
-                <% } %>
+       !msg.get("attachmentPath").toString().isEmpty()) { %>
+    <div style="margin-top:8px;">
+        <a href="<%= request.getContextPath() %>/uploads/attachments/<%= msg.get("attachmentPath") %>" 
+           target="_blank">
+            📎 View Attachment
+        </a>
+    </div>
+<% } %>
 
             </div>
         <% } %>

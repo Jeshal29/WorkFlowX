@@ -224,47 +224,53 @@ body {
     color:#999;
 }
 
-/* ===== MINI TOGGLE ===== */
-.mini-toggle {
-    width:60px;
-    height:28px;
-    background:#ddd;
-    border-radius:20px;
-    padding:3px;
-    cursor:pointer;
-}
+ .mini-toggle {
+            width: 60px;
+            height: 28px;
+            background: #ddd;
+            border-radius: 20px;
+            padding: 3px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
 
-.mini-slider {
-    width:100%;
-    height:100%;
-    border-radius:20px;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 6px;
-    font-size:12px;
-}
+        .mini-slider {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            font-size: 12px;
+        }
 
-.mini-slider::before {
-    content:"";
-    position:absolute;
-    width:22px;
-    height:22px;
-    background:<%= isAdmin ? "#fa709a" : "#4facfe" %>;
-    border-radius:50%;
-    left:3px;
-    transition:all 0.3s ease;
-}
+        .mini-slider::before {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #667eea;
+            border-radius: 50%;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
 
-.mini-slider.active::before {
-    left:35px;
-    background:#2b2b3d;
-}
+        .mini-slider.active::before {
+            left: 35px;
+            background: #2b2b3d;
+        }
 
-.dark-mode .mini-toggle {
-    background:#444;
-}
+        .mini-slider span {
+            z-index: 1;
+            }
+
+        /* Dark mode adjustments */
+        .dark-mode .mini-toggle {
+            background: #444;
+        }
+
 .profile-pic-btn {
     width: 24px;
     height: 24px;
@@ -499,7 +505,7 @@ body {
             grid-template-columns: 1fr !important;
         }
     }
-
+    
 </style>
 </head>
 
@@ -510,13 +516,11 @@ body {
     <h2>Task Reports</h2>
 
     <div style="display:flex; align-items:center; gap:15px;">
-
-        <!-- Theme Toggle -->
         <form action="ThemeServlet" method="post">
             <div class="mini-toggle" onclick="this.closest('form').submit();">
                 <div class="mini-slider <%= theme.equals("DARK") ? "active" : "" %>">
-                    <span>☀</span>
-                    <span>🌙</span>
+                     <span class="icon-left">☀</span>
+            <span class="icon-right">🌙</span>
                 </div>
             </div>
             <input type="hidden" name="currentTheme" value="<%= theme %>">
@@ -537,11 +541,17 @@ body {
 <% } %>
 
 
-       <a href="javascript:history.back();" class="dashboard-btn">
-    ← Back
-</a>
+      <%
+String backHref = "reports.jsp"; // default
 
+if ("globalReports".equals(request.getParameter("source"))) {
+    backHref = "globalReports.jsp";
+} else if ("reports".equals(request.getParameter("source"))) {
+    backHref = "reports.jsp";
+}
+%>
 
+<a href="<%= backHref %>" class="dashboard-btn">← Back</a>
 
     <!-- Dashboard Button -->
     <% if (currentUser.isAdmin()) { %>

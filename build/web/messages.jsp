@@ -494,7 +494,7 @@ body {
             </a>
         <% } %>
         
-        <a href="<%= currentUser.isEmployer() ? "employerDashboard.jsp" : "employeeDashboard.jsp" %>" class="dashboard-btn">← Dashboard</a>
+        <a href="<%= currentUser.isEmployer() ? "employerDashboard.jsp" : "employeeDashboard.jsp" %>" class="dashboard-btn">← Back to Dashboard</a>
     </div>
 </div>
 
@@ -540,15 +540,21 @@ body {
 
                             <div id="text-<%=msg.getMessageId()%>">
                                 <%= msg.getMessageContent()!=null ? msg.getMessageContent() : "" %>
-                                <% if(msg.getAttachmentPath()!=null && !msg.getAttachmentPath().isEmpty()) { %>
-                                    <br><%
-    String attachPath = msg.getAttachmentPath();
-    // Normalize path - remove leading slash and "uploads/" if present
-    if (attachPath.startsWith("/")) attachPath = attachPath.substring(1);
-    if (!attachPath.startsWith("uploads/")) attachPath = "uploads/" + attachPath;
-%>
-<a href="<%= request.getContextPath() %>/<%= attachPath %>" target="_blank" downloadstyle="color: inherit;">📎 Attachment</a>
-                                <% } %>
+                                <% if(msg.getAttachmentPath() != null && !msg.getAttachmentPath().isEmpty()) { %>
+    <%
+        String attachPath = msg.getAttachmentPath();
+        // Strip everything, keep only filename
+        if (attachPath.contains("/")) {
+            attachPath = attachPath.substring(attachPath.lastIndexOf("/") + 1);
+        }
+        if (attachPath.contains("\\")) {
+            attachPath = attachPath.substring(attachPath.lastIndexOf("\\") + 1);
+        }
+    %>
+    <br>
+    <a href="<%= request.getContextPath() %>/uploads/attachments/<%= msg.getAttachmentPath() %>" 
+   target="_blank" style="color: inherit;">📎 Attachment</a>
+<% } %>
                             </div>
 
                             <div id="edit-<%=msg.getMessageId()%>" style="display:none;">

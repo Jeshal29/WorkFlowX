@@ -351,7 +351,7 @@
                 </a>
             <% } %>
             
-            <a href="adminDashboard.jsp" class="dashboard-btn">← Dashboard</a>
+            <a href="adminDashboard.jsp" class="dashboard-btn">← Back to Dashboard</a>
         </div>
     </div>
     

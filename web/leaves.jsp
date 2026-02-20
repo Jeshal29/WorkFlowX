@@ -706,6 +706,7 @@ body.dark-mode .leave-item div[style] {
 
     <div class="navbar">
         <h2>📅 My Leave Applications</h2>
+        <div style="display:flex; align-items:center; gap:15px;">
         <form action="ThemeServlet" method="post">
             <div class="mini-toggle" onclick="this.closest('form').submit();">
                 <div class="mini-slider <%= theme.equals("DARK") ? "active" : "" %>">
@@ -732,7 +733,7 @@ body.dark-mode .leave-item div[style] {
 
         <a href="employeeDashboard.jsp" class="dashboard-btn" >← Back to Dashboard</a>
     </div>
-    
+    </div>
     <div class="container">
         <div class="apply-form">
             <div class="form-header">

@@ -178,43 +178,53 @@ body {
 }
 
 /* ================= TOGGLE ================= */
-.mini-toggle {
-    width:60px;
-    height:28px;
-    background:#ddd;
-    border-radius:20px;
-    padding:3px;
-    cursor:pointer;
-    transition:background 0.3s ease;
-}
+/* MINI ICON TOGGLE */
+        .mini-toggle {
+            width: 60px;
+            height: 28px;
+            background: #ddd;
+            border-radius: 20px;
+            padding: 3px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
 
-.mini-slider {
-    width:100%;
-    height:100%;
-    border-radius:20px;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 6px;
-    font-size:12px;
-}
+        .mini-slider {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            font-size: 12px;
+        }
 
-.mini-slider::before {
-    content:"";
-    position:absolute;
-    width:22px;
-    height:22px;
-    background:#667eea;
-    border-radius:50%;
-    left:3px;
-    transition:all 0.3s ease;
-}
+        .mini-slider::before {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #667eea;
+            border-radius: 50%;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
 
-.mini-slider.active::before {
-    left:35px;
-    background:#2b2b3d;
-}
+        .mini-slider.active::before {
+            left: 35px;
+            background: #2b2b3d;
+        }
+
+        .mini-slider span {
+            z-index: 1;
+            }
+
+        /* Dark mode adjustments */
+        .dark-mode .mini-toggle {
+            background: #444;
+        }
 
 /* ================= DARK MODE ================= */
 body.dark-mode {
@@ -529,11 +539,7 @@ body.dark-mode {
         
         <!-- Overall Statistics -->
         <div class="stats-grid">
-            <div class="stat-card blue">
-                <h3>Total Users</h3>
-                <div class="number"><%= overallStats.getOrDefault("totalUsers", 0) %></div>
-                <div class="label">Active accounts</div>
-            </div>
+            
             
             <div class="stat-card green">
                 <h3>Employees</h3>

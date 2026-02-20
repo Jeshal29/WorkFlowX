@@ -11,15 +11,21 @@ if (currentUser == null ||
 }
 boolean isAdmin = currentUser.isAdmin();
 ReportDAO dao = new ReportDAO();
+String selectedDept = request.getParameter("department");
  List<Map<String, Object>> users;
 
-    if (currentUser.isAdmin()) {
-        users = dao.getAllUsersReport();  // Admin sees everyone including employers
+    if (isAdmin) {
+    if (selectedDept != null && !selectedDept.isEmpty()) {
+        // Admin viewing a specific department
+        users = dao.getUsersReportByDepartment(selectedDept);
     } else {
-        // Employer sees only employees in their own department
-        users = dao.getUsersReportByDepartment(currentUser.getDepartment());
+        // Admin viewing all users
+        users = dao.getAllUsersReport();
     }
-
+} else {
+    // Employer sees only employees in their own department
+    users = dao.getUsersReportByDepartment(currentUser.getDepartment());
+}
 if (users == null) {
     users = new ArrayList<>();
 }
@@ -151,46 +157,52 @@ td a {
     color:#999;
 }
 
-/* ================= TOGGLE ================= */
-.mini-toggle {
-    width:60px;
-    height:28px;
-    background:#ddd;
-    border-radius:20px;
-    padding:3px;
-    cursor:pointer;
-    transition:background 0.3s ease;
-}
+ .mini-toggle {
+            width: 60px;
+            height: 28px;
+            background: #ddd;
+            border-radius: 20px;
+            padding: 3px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
 
-.mini-slider {
-    width:100%;
-    height:100%;
-    border-radius:20px;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 6px;
-    font-size:12px;
-}
+        .mini-slider {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            font-size: 12px;
+        }
 
-.mini-slider::before {
-    content:"";
-    position:absolute;
-    width:22px;
-    height:22px;
-    background: <%= isAdmin 
-        ? "linear-gradient(135deg,#f093fb,#f5576c)" 
-        : "linear-gradient(135deg, #764ba2 0%, #667eea 100%)" %>;
-    border-radius:50%;
-    left:3px;
-    transition:all 0.3s ease;
-}
+        .mini-slider::before {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #667eea;
+            border-radius: 50%;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
 
-.mini-slider.active::before {
-    left:35px;
-    background:#2b2b3d;
-}
+        .mini-slider.active::before {
+            left: 35px;
+            background: #2b2b3d;
+        }
+
+        .mini-slider span {
+            z-index: 1;
+            }
+
+        /* Dark mode adjustments */
+        .dark-mode .mini-toggle {
+            background: #444;
+        }
 
 /* ================= DARK MODE ================= */
 body.dark-mode {
@@ -476,18 +488,15 @@ body.dark-mode {
     <h2>👥 User Reports</h2>
     
     <div style="display:flex; align-items:center; gap:15px;">
-
-        <form action="ThemeServlet" method="post" style="margin-right:15px;">
-    
-    <div class="mini-toggle" onclick="this.closest('form').submit();">
-        <div class="mini-slider <%= theme.equals("DARK") ? "active" : "" %>">
-            <span class="icon-left">☀</span>
+        <form action="ThemeServlet" method="post">
+            <div class="mini-toggle" onclick="this.closest('form').submit();">
+                <div class="mini-slider <%= theme.equals("DARK") ? "active" : "" %>">
+                     <span class="icon-left">☀</span>
             <span class="icon-right">🌙</span>
-        </div>
-    </div>
-
-    <input type="hidden" name="currentTheme" value="<%= theme %>">
-</form>
+                </div>
+            </div>
+            <input type="hidden" name="currentTheme" value="<%= theme %>">
+        </form>
 
         <% if (navProfilePic != null) { %>
     <!-- Show uploaded profile picture -->
@@ -503,9 +512,17 @@ body.dark-mode {
             </a>
         <% } %>
 
-        <a href="javascript:history.back();" class="dashboard-btn">
-    ← Back
-</a>
+        <%
+String backHref = "reports.jsp"; // default
+
+if ("globalReports".equals(request.getParameter("source"))) {
+    backHref = "globalReports.jsp";
+} else if ("reports".equals(request.getParameter("source"))) {
+    backHref = "reports.jsp";
+}
+%>
+
+<a href="<%= backHref %>" class="dashboard-btn">← Back</a>
 
     <!-- Dashboard Button -->
     <% if (currentUser.isAdmin()) { %>
@@ -520,8 +537,18 @@ body.dark-mode {
 <div class="container">
 
 <div class="page-header">
-   <% if (!currentUser.isAdmin()) { %>
-        <p style="color:#666; margin-top:5px;">Showing employees in: <strong><%= currentUser.getDepartment() %></strong></p>
+    <% if (selectedDept != null && !selectedDept.isEmpty()) { %>
+        <p style="color:#666; margin-top:5px;">
+            Showing employees in: <strong><%= selectedDept %></strong>
+        </p>
+    <% } else if (!currentUser.isAdmin()) { %>
+        <p style="color:#666; margin-top:5px;">
+            Showing employees in: <strong><%= currentUser.getDepartment() %></strong>
+        </p>
+    <% } else { %>
+        <p style="color:#666; margin-top:5px;">
+            Showing all employees
+        </p>
     <% } %>
 </div>
 

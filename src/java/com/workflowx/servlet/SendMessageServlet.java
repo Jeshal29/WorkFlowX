@@ -58,7 +58,8 @@ if (!uploadDir.exists()) {
     filePart.write(filePath);
 
     // store only filename in DB
-    attachmentPath = newFileName;
+    // store relative path in DB
+attachmentPath = "attachments/" + newFileName;
 }
 
 

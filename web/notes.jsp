@@ -74,14 +74,53 @@ body.dark-mode { background:#1e1e2f; color:white; }
     fill: white;
 }
 
-/* MINI TOGGLE */
-.mini-toggle { width:60px; height:28px; background:#ddd; border-radius:20px; padding:3px; cursor:pointer; }
-.mini-slider { width:100%; height:100%; border-radius:20px; position:relative; display:flex; align-items:center; justify-content:space-between; padding:0 6px; font-size:12px; }
-.mini-slider::before { content:""; position:absolute; width:22px; height:22px; background:#667eea; border-radius:50%; left:3px; transition:0.3s; }
-.mini-slider.active::before { left:35px; background:#2b2b3d; }
-.mini-slider span { z-index:1; }
-.dark-mode .mini-toggle { background:#444; }
+        /* MINI ICON TOGGLE */
+        .mini-toggle {
+            width: 60px;
+            height: 28px;
+            background: #ddd;
+            border-radius: 20px;
+            padding: 3px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
 
+        .mini-slider {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            font-size: 12px;
+        }
+
+        .mini-slider::before {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #667eea;
+            border-radius: 50%;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .mini-slider.active::before {
+            left: 35px;
+            background: #2b2b3d;
+        }
+
+        .mini-slider span {
+            z-index: 1;
+            }
+
+        /* Dark mode adjustments */
+        .dark-mode .mini-toggle {
+            background: #444;
+        }
 /* NOTES CONTAINER */
 .notes-container { padding:15px; min-height:100vh; }
 .note { background:white; border-radius:20px; padding:15px; margin-bottom:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1); transition:0.2s; }
@@ -307,7 +346,25 @@ button { border:none; border-radius:12px; padding:8px 14px; cursor:pointer; font
             grid-template-columns: 1fr !important;
         }
     }
+    .editor-toolbar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
 
+.editor-toolbar button {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    background: #007aff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.dark-mode .editor-toolbar button {
+    background: #444;
+}
 </style>
 </head>
 
@@ -315,11 +372,12 @@ button { border:none; border-radius:12px; padding:8px 14px; cursor:pointer; font
 
 <div class="navbar">
     <h1>Notes</h1>
-    <div style="display:flex; align-items:center; gap:10px;">
+    <div style="display:flex; align-items:center; gap:15px;">
         <form action="ThemeServlet" method="post">
             <div class="mini-toggle" onclick="this.closest('form').submit();">
                 <div class="mini-slider <%= theme.equals("DARK") ? "active" : "" %>">
-                    <span>☀</span><span>🌙</span>
+                     <span class="icon-left">☀</span>
+            <span class="icon-right">🌙</span>
                 </div>
             </div>
             <input type="hidden" name="currentTheme" value="<%= theme %>">
@@ -345,7 +403,15 @@ button { border:none; border-radius:12px; padding:8px 14px; cursor:pointer; font
     <div id="addNoteForm" class="note" style="display:none;">
         <form action="ManageNoteServlet" method="post">
             <input type="hidden" name="action" value="create">
-            <input type="text" name="noteTitle" placeholder="Title (optional)" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;margin-bottom:10px;">
+            <input type="text" name="noteTitle" placeholder="Title (optional)"  style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;margin-bottom:10px;">
+             <div class="editor-toolbar">
+    <button type="button" onclick="format('bold')"><b>B</b></button>
+    <button type="button" onclick="format('italic')"><i>I</i></button>
+    <button type="button" onclick="format('underline')"><u>U</u></button>
+    <button type="button" onclick="format('insertUnorderedList')">• List</button>
+    <button type="button" onclick="format('insertOrderedList')">1. List</button>
+    <button type="button" onclick="insertChecklist()">☑ Checklist</button>
+</div>
             <div contenteditable="true" class="rich-editor"></div>
             <input type="hidden" name="noteContent">
             <label style="display:flex;align-items:center;margin-top:10px;">
@@ -365,9 +431,17 @@ if(notes!=null){
 <div class="note <%= note.isPinned() ? "pinned" : "" %>">
 <form action="ManageNoteServlet" method="post">
     <input type="hidden" name="noteId" value="<%= note.getNoteId() %>">
-    <input type="hidden" name="action" value="update">
     <input type="text" name="noteTitle" value="<%= note.getTitle() %>" class="note-title" readonly>
-    <div class="rich-editor" contenteditable="false"><%= note.getContent() %></div>
+    <div class="editor-toolbar" style="display:none;">
+    <button type="button" onclick="format('bold')"><b>B</b></button>
+    <button type="button" onclick="format('italic')"><i>I</i></button>
+    <button type="button" onclick="format('underline')"><u>U</u></button>
+    <button type="button" onclick="format('insertUnorderedList')">• List</button>
+    <button type="button" onclick="format('insertOrderedList')">1. List</button>
+    <button type="button" onclick="insertChecklist()">☑ Checklist</button>
+</div>
+
+<div class="rich-editor" contenteditable="false"><%= note.getContent() %></div>
     <input type="hidden" name="noteContent">
     <div class="note-date"><%= dateFormat.format(note.getCreatedAt()) %></div>
     <div class="note-actions">
@@ -402,12 +476,53 @@ function enableEdit(button){
     const title=form.querySelector("input[name='noteTitle']");
     const editor=form.querySelector(".rich-editor");
     const hidden=form.querySelector("input[name='noteContent']");
+    const toolbar = note.querySelector(".editor-toolbar");
+    if (toolbar) toolbar.style.display = "flex";
+    title.removeAttribute("readonly");
+    title.style.border="1px solid #ccc"; 
+    title.style.background="white";
+    editor.setAttribute("contenteditable","true"); 
+    editor.focus();
 
-    title.removeAttribute("readonly"); title.style.border="1px solid #ccc"; title.style.background="white";
-    editor.setAttribute("contenteditable","true"); editor.focus();
+    button.innerText="Save"; 
+    button.classList.remove("edit-btn"); 
+    button.classList.add("primary-btn");
+    button.onclick=function(){
+    hidden.value=editor.innerHTML;
 
-    button.innerText="Save"; button.classList.remove("edit-btn"); button.classList.add("primary-btn");
-    button.onclick=function(){ hidden.value=editor.innerHTML; form.submit(); }
+    // create action field dynamically
+    let actionInput = form.querySelector("input[name='action']");
+    if (!actionInput) {
+        actionInput = document.createElement("input");
+        actionInput.type = "hidden";
+        actionInput.name = "action";
+        form.appendChild(actionInput);
+    }
+    actionInput.value = "update";
+
+    form.submit();
+};
+}
+function format(command) {
+    document.execCommand(command, false, null);
+}
+
+function insertChecklist() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+
+    const space = document.createTextNode(" ");
+
+    range.insertNode(space);
+    range.insertNode(checkbox);
+
+    range.setStartAfter(space);
+    selection.removeAllRanges();
+    selection.addRange(range);
 }
 </script>
 

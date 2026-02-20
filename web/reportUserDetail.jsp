@@ -513,7 +513,7 @@ function toggleTheme() {
             </a>
         <% } %>
 
-        <a href="javascript:history.back();" class="dashboard-btn">
+        <a href="reportUsers.jsp" class="dashboard-btn">
     ← Back
 </a>
 

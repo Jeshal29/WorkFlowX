@@ -613,5 +613,33 @@ stmt.setString(8, user.getThemePreference());
     }
     return employees;
 }
-        
+        public List<User> getUsersByRoleAndStatus(String role, boolean status) {
+    List<User> list = new ArrayList<>();
+    String sql = "SELECT * FROM users WHERE role=? AND is_active=?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, role);
+        ps.setBoolean(2, status);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            User u = new User();
+            u.setUserId(rs.getInt("user_id"));
+            u.setFullName(rs.getString("full_name"));
+            u.setEmail(rs.getString("email"));
+            u.setRole(rs.getString("role"));
+            u.setDepartment(rs.getString("department"));
+            u.setActive(rs.getBoolean("is_active"));
+            list.add(u);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
     }

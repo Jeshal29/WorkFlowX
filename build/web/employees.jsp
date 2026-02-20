@@ -120,43 +120,52 @@ body.dark-mode {
 }
 
 /* MINI TOGGLE */
-.mini-toggle {
-    width: 60px;
-    height: 28px;
-    background: #ddd;
-    border-radius: 20px;
-    padding: 3px;
-    cursor: pointer;
-}
+/* MINI ICON TOGGLE */
+        .mini-toggle {
+            width: 60px;
+            height: 28px;
+            background: #ddd;
+            border-radius: 20px;
+            padding: 3px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
 
-.mini-slider {
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    position: relative;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 6px;
-    font-size:12px;
-}
+        .mini-slider {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            font-size: 12px;
+        }
 
-.mini-slider::before {
-    content:"";
-    position:absolute;
-    width:22px;
-    height:22px;
-    background:<%= primaryColor %>;
-    border-radius:50%;
-    left:3px;
-    transition:all 0.3s ease;
-}
+        .mini-slider::before {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #667eea;
+            border-radius: 50%;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
 
-.mini-slider.active::before {
-    left:35px;
-    background:#2b2b3d;
-}
+        .mini-slider.active::before {
+            left: 35px;
+            background: #2b2b3d;
+        }
 
+        .mini-slider span {
+            z-index: 1;
+            }
+             /* Dark mode adjustments */
+        .dark-mode .mini-toggle {
+            background: #444;
+        }
 /* CONTAINER */
 .container {
     width: 80%;
@@ -476,14 +485,12 @@ tr:nth-child(even) {
 <div class="navbar">
     <h2>WorkFlowX - <%= role %></h2>
 
-    <div style="display:flex; align-items:center; gap:15px;">
-
-        <!-- THEME TOGGLE (NOT REMOVED) -->
+     <div style="display:flex; align-items:center; gap:15px;">
         <form action="ThemeServlet" method="post">
             <div class="mini-toggle" onclick="this.closest('form').submit();">
                 <div class="mini-slider <%= theme.equals("DARK") ? "active" : "" %>">
-                    <span>☀</span>
-                    <span>🌙</span>
+                     <span class="icon-left">☀</span>
+            <span class="icon-right">🌙</span>
                 </div>
             </div>
             <input type="hidden" name="currentTheme" value="<%= theme %>">
@@ -502,16 +509,25 @@ tr:nth-child(even) {
             </a>
         <% } %>
 
-        <a href="javascript:history.back();" class="dashboard-btn">
-    ← Back
-</a>
+       <% if ("globalReports".equals(source)) { %>
+    <a href="globalReports.jsp" class="dashboard-btn">
+        ← Back
+    </a>
+<% } %>
 
     <!-- Dashboard Button -->
     <% if (currentUser.isAdmin()) { %>
-        <a href="adminDashboard.jsp" class="dashboard-btn">Dashboard</a>
+    <% if ("globalReports".equals(source)) { %>
+        <!-- Admin coming from Global Reports -->
+        <a href="globalReports.jsp" class="dashboard-btn">Dashboard</a>
     <% } else { %>
-        <a href="employerDashboard.jsp" class="dashboard-btn">Dashboard</a>
+        <!-- Admin coming from anywhere else -->
+        <a href="adminDashboard.jsp" class="dashboard-btn">← Back to Dashboard</a>
     <% } %>
+<% } else { %>
+    <!-- Employer -->
+    <a href="employerDashboard.jsp" class="dashboard-btn">← Back to Dashboard</a>
+<% } %>
     </div>
     </div>
 
@@ -540,7 +556,8 @@ tr:nth-child(even) {
 <th>Action</th>
 </tr>
 
-<% for(User emp : activeEmployees){ %>
+<% for(User emp : activeEmployees){ 
+       if("EMPLOYEE".equals(emp.getRole())) { %>
 <tr>
 <td><%= emp.getFullName() %></td>
 <td><%= emp.getEmail() %></td>
@@ -554,7 +571,7 @@ tr:nth-child(even) {
 </form>
 </td>
 </tr>
-<% } %>
+<%  } } %>
 </table>
 </div>
 
@@ -569,7 +586,8 @@ tr:nth-child(even) {
 <th>Action</th>
 </tr>
 
-<% for(User emp : inactiveEmployees){ %>
+<% for(User emp : inactiveEmployees){ 
+if("EMPLOYEE".equals(emp.getRole())) { %>
 <tr>
 <td><%= emp.getFullName() %></td>
 <td><%= emp.getEmail() %></td>
@@ -583,7 +601,7 @@ tr:nth-child(even) {
 </form>
 </td>
 </tr>
-<% } %>
+<%  } } %>
 </table>
 </div>
 

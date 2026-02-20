@@ -1,3 +1,4 @@
+<%@page import="java.net.URLEncoder"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.workflowx.model.User" %>
 <%@ page import="com.workflowx.dao.ReportDAO" %>
@@ -447,27 +448,27 @@ th {
 
 <div class="grid">
 
-<a href="employees.jsp?source=reports" class="card">
+<a href="employees.jsp?source=globalReports" class="card">
     <h3>Total Employees</h3>
     <div class="number"><%= stats.get("totalEmployees") %></div>
 </a>
 
-<a href="manageEmployers.jsp?source=reports" class="card">
+<a href="manageEmployers.jsp?source=globalReports" class="card">
     <h3>Total Employers</h3>
     <div class="number"><%= stats.get("totalEmployers") %></div>
 </a>
 
-<a href="allMessages.jsp?source=reports" class="card">
+<a href="allMessages.jsp?source=globalReports" class="card">
     <h3>Total Messages</h3>
     <div class="number"><%= stats.get("totalMessages") %></div>
 </a>
 
-<a href="reportTasks.jsp?status=COMPLETED&source=reports" class="card">
+<a href="reportTasks.jsp?status=COMPLETED&source=globalReports" class="card">
     <h3>Completed Tasks</h3>
     <div class="number"><%= stats.get("completedTasks") %></div>
 </a>
 
-<a href="reportTasks.jsp?status=PENDING&source=reports" class="card">
+<a href="reportTasks.jsp?status=PENDING&source=globalReports" class="card">
     <h3>Pending Tasks</h3>
     <div class="number"><%= stats.get("pendingTasks") %></div>
 </a>
@@ -475,30 +476,34 @@ th {
 </div>
 
 <div class="section">
-<h2>⚠️ Top Content Violators</h2>
-
-<table>
-<tr>
-<th>Name</th>
-<th>Department</th>
-<th>Violations</th>
-<th>Action</th>
-</tr>
-
-<% for(Map<String,Object> v : topViolators){ %>
-<tr>
-<td><%= v.get("fullName") %></td>
-<td><%= v.get("department") %></td>
-<td class="bad"><%= v.get("violationCount") %></td>
-<td>
-<a href="reportBadWords.jsp?userId=<%= v.get("userId") %>" style="color:#60a5fa;">
-View Messages
-</a>
-</td>
-</tr>
+    <h2>⚠️ Top Content Violators</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Role</th>  
+            <th>Violations</th>
+            <th>Action</th>
+        </tr>
+        <% for(Map<String,Object> v : topViolators){ %>
+    <tr>
+        <td><%= v.get("fullName") %></td>
+        <td><%= v.get("department") %></td>
+        <td>
+            <span class="role-badge role-<%= v.get("role") != null ? ((String)v.get("role")).toLowerCase() : "" %>">
+                <%= v.get("role") != null ? (String)v.get("role") : "N/A" %>
+            </span>
+        </td>
+        <td class="bad"><%= v.get("violationCount") %></td>
+        <td>
+            <a href="reportBadWords.jsp?userId=<%= v.get("userId") %>" 
+               style="color:#60a5fa;">
+                View Messages
+            </a>
+        </td>
+    </tr>
 <% } %>
-
-</table>
+    </table>
 </div>
 
 <div class="section">
@@ -516,8 +521,8 @@ View Messages
 <td><%= dept %></td>
 <td><%= departments.get(dept) %></td>
 <td>
-<a href="reportUsers.jsp?department=<%= dept %>" style="color:#60a5fa;">
-View Users
+<a href="reportUsers.jsp?department=<%= URLEncoder.encode(dept, "UTF-8") %>" style="color:#60a5fa;">
+    View Users
 </a>
 </td>
 </tr>
