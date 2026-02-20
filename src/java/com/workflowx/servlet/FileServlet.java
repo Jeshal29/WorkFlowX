@@ -9,7 +9,9 @@ import java.io.*;
 public class FileServlet extends HttpServlet {
     
     // Point to permanent uploads folder
-    private static final String UPLOAD_DIR = "C:/project/EmployeeApp1/uploads/";
+    private static final String UPLOAD_DIR = System.getenv("UPLOAD_DIR") != null 
+    ? System.getenv("UPLOAD_DIR") 
+    : "C:/project/EmployeeApp1/uploads/";
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

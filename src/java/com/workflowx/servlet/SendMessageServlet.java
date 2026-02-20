@@ -45,7 +45,10 @@ if (filePart != null && filePart.getSize() > 0) {
 
     String newFileName = System.currentTimeMillis() + "_" + originalFileName;
 
-    String uploadPath = "C:/project/EmployeeApp1/uploads/attachments/";
+    String uploadPath = System.getenv("UPLOAD_DIR") != null 
+    ? System.getenv("UPLOAD_DIR") + "/attachments/" 
+    : "C:/project/EmployeeApp1/uploads/attachments/";
+
 File uploadDir = new File(uploadPath);
 if (!uploadDir.exists()) {
     uploadDir.mkdirs();
