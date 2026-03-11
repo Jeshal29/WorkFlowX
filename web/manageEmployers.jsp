@@ -1,24 +1,12 @@
 <%@page import="java.util.List"%>
 <%@page import="com.workflowx.dao.UserDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.workflowx.model.User" %>
-<%@ page import="java.sql.*" %>
-<%@ page import="com.workflowx.util.DatabaseConnection" %>
-
+<%@ include file="/common/userSession.jsp" %>
+<%@ include file="/common/adminOnly.jsp" %>
 <%
-User user = (User) session.getAttribute("user");
-if (user == null || !user.isAdmin()) {
-    response.sendRedirect("login.jsp");
-    return;
-}
+
 String role = user.getRole();
 String primaryColor = role.equals("ADMIN") ? "#f5576c" : "#667eea";
-/* ===== THEME ===== */
-String theme = "LIGHT";
-if (user.getThemePreference() != null) {
-    theme = user.getThemePreference();
-}
-
 String status = request.getParameter("status");
 String source = request.getParameter("source");
 UserDAO userDAO = new UserDAO();
@@ -26,21 +14,13 @@ UserDAO userDAO = new UserDAO();
 List<User> activeEmployers = userDAO.getUsersByRoleAndStatus("EMPLOYER" ,true);
 List<User> inactiveEmployers = userDAO.getUsersByRoleAndStatus("EMPLOYER" ,false);
 List<User> adminUsers = userDAO.getUsersByRoleAndStatus("ADMIN", true);
-
-String navProfilePic = null;
-    if (user != null) {
-        String pic = user.getProfilePicture();
-        if (pic != null && !pic.isEmpty() && !pic.equals("default.jpg")) {
-            navProfilePic = pic;
-        }
-    }
 %>
 
 <!DOCTYPE html>
 <html>
 <head>
 <title>Manage Employers</title>
-
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
 <style>
 
 body {
@@ -104,53 +84,7 @@ body.dark-mode {
     border-radius: 5px;
 }
 
-/* MINI TOGGLE */
-/* MINI ICON TOGGLE */
-        .mini-toggle {
-            width: 60px;
-            height: 28px;
-            background: #ddd;
-            border-radius: 20px;
-            padding: 3px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
 
-        .mini-slider {
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 6px;
-            font-size: 12px;
-        }
-
-        .mini-slider::before {
-            content: "";
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: #667eea;
-            border-radius: 50%;
-            left: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .mini-slider.active::before {
-            left: 35px;
-            background: #2b2b3d;
-        }
-
-        .mini-slider span {
-            z-index: 1;
-            }
-             /* Dark mode adjustments */
-        .dark-mode .mini-toggle {
-            background: #444;
-        }
 /* CONTAINER */
 .container {
     width: 80%;
@@ -228,41 +162,6 @@ tr:nth-child(even) {
     border-radius:20px;
     cursor:pointer;
 }
-.profile-pic-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.3s;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-}
-
-.profile-pic-btn:hover {
-    background: rgba(255,255,255,0.3);
-    transform: scale(1.2);
-}
-
-.profile-pic-btn img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.profile-icon-svg {
-    width: 12px;
-    height: 12px;
-    fill: white;
-}
-
 
 </style>
 </head>

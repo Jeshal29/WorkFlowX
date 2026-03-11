@@ -16,9 +16,9 @@ public class AdminCreateEmployerServlet extends HttpServlet {
         
         // Security: Only admins can access this servlet
         HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
         
-        if (currentUser == null || !currentUser.isAdmin()) {
+        if (user == null || !user.isAdmin()) {
             response.sendRedirect("login.jsp");
             return;
         }
@@ -102,9 +102,9 @@ public class AdminCreateEmployerServlet extends HttpServlet {
         
         // Security: Only admins can access this page
         HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
         
-        if (currentUser == null || !currentUser.isAdmin()) {
+        if (user == null || !user.isAdmin()) {
             response.sendRedirect("login.jsp");
             return;
         }

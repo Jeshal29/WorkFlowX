@@ -642,4 +642,43 @@ stmt.setString(8, user.getThemePreference());
 
     return list;
 }
+        /**
+ * Get user by username and email (for password reset)
+ */
+/**
+ * Get user by email (for OTP-based password reset)
+     * @param email
+     * @return 
+ */
+public User getUserByEmail(String email) {
+    String sql = "SELECT * FROM users WHERE email = ? AND is_active = TRUE";
+    
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        stmt.setString(1, email);
+        
+        ResultSet rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            User user = new User();
+            user.setUserId(rs.getInt("user_id"));
+            user.setUsername(rs.getString("username"));
+            user.setEmail(rs.getString("email"));
+            user.setFullName(rs.getString("full_name"));
+            user.setRole(rs.getString("role"));
+            user.setDepartment(rs.getString("department"));
+            user.setActive(rs.getBoolean("is_active"));
+            user.setCreatedAt(rs.getTimestamp("created_at"));
+            user.setThemePreference(rs.getString("theme_preference"));
+            user.setProfilePicture(rs.getString("profile_picture"));
+            return user;
+        }
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    
+    return null;
+}
     }

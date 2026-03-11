@@ -1,50 +1,104 @@
+<%@page import="java.util.Calendar"%>
+<%@page import="java.sql.Timestamp  "%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="com.workflowx.dao.ReportDAO"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.workflowx.model.User, com.workflowx.dao.ReportDAO, java.util.*, java.text.SimpleDateFormat, java.sql.Timestamp, java.util.Calendar" %>
+<%@ include file="/common/userSession.jsp" %>
 <%
     String userIdParam = request.getParameter("userId"); // get userId from URL
     List<Map<String, Object>> censoredMessages;
 List<Map<String, Object>> topViolators;
-    User currentUser = (User) session.getAttribute("user");
-    if (currentUser == null) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
      ReportDAO dao = new ReportDAO();
-      boolean isAdmin = currentUser.isAdmin();
+     int selectedYear = -1;
+    int selectedMonth = -1;
+
+    String yearParam = request.getParameter("year");
+    String monthParam = request.getParameter("month");
+
+    if (yearParam != null && monthParam != null) {
+        try {
+            selectedYear = Integer.parseInt(yearParam);
+            selectedMonth = Integer.parseInt(monthParam);
+        } catch (NumberFormatException e) {
+            selectedYear = -1;
+            selectedMonth = -1;
+        }
+    }
+      boolean isAdmin = user.isAdmin();
     // Check access - only EMPLOYER and ADMIN can view
-    if (currentUser.isAdmin()) {
+    if (user.isAdmin()) {
+
     if (userIdParam != null && !userIdParam.isEmpty()) {
-        // Admin wants messages of a single user
-        censoredMessages = dao.getCensoredMessagesByUser(Integer.parseInt(userIdParam));
-        // Only show the clicked user in top violators
-        Map<String, Object> singleViolator = dao.getViolatorByUserId(Integer.parseInt(userIdParam));
+
+        if (selectedYear != -1 && selectedMonth != -1) {
+            censoredMessages = dao.getCensoredMessagesByUserAndMonth(
+                    Integer.parseInt(userIdParam), selectedYear, selectedMonth);
+        } else {
+            censoredMessages = dao.getCensoredMessagesByUser(
+                    Integer.parseInt(userIdParam));
+        }
+
+        Map<String, Object> singleViolator =
+                dao.getViolatorByUserId(Integer.parseInt(userIdParam));
+
         topViolators = new ArrayList<>();
         if (singleViolator != null) topViolators.add(singleViolator);
+
     } else {
-        censoredMessages = dao.getCensoredMessages();
+
+        if (selectedYear != -1 && selectedMonth != -1) {
+            censoredMessages = dao.getCensoredMessagesByMonth(
+                    selectedYear, selectedMonth);
+        } else {
+            censoredMessages = dao.getCensoredMessages();
+        }
+
         topViolators = dao.getTopViolators();
     }
-} else {
+
+} else { // EMPLOYER
+
     if (userIdParam != null && !userIdParam.isEmpty()) {
-        censoredMessages = dao.getCensoredMessagesByUserAndDepartment(
-                                Integer.parseInt(userIdParam), currentUser.getDepartment());
-        // Only show clicked user
-        Map<String, Object> singleViolator = dao.getViolatorByUserIdAndDept(
-                                Integer.parseInt(userIdParam), currentUser.getDepartment());
+
+        if (selectedYear != -1 && selectedMonth != -1) {
+            censoredMessages = dao.getCensoredMessagesByUserDeptAndMonth(
+                    Integer.parseInt(userIdParam),
+                    user.getDepartment(),
+                    selectedYear,
+                    selectedMonth);
+        } else {
+            censoredMessages = dao.getCensoredMessagesByUserAndDepartment(
+                    Integer.parseInt(userIdParam),
+                    user.getDepartment());
+        }
+
+        Map<String, Object> singleViolator =
+                dao.getViolatorByUserIdAndDept(
+                        Integer.parseInt(userIdParam),
+                        user.getDepartment());
+
         topViolators = new ArrayList<>();
         if (singleViolator != null) topViolators.add(singleViolator);
+
     } else {
-        censoredMessages = dao.getCensoredMessagesByDepartment(currentUser.getDepartment());
-        topViolators = dao.getTopViolatorsByDepartment(currentUser.getDepartment());
+
+        if (selectedYear != -1 && selectedMonth != -1) {
+            censoredMessages = dao.getCensoredMessagesByDeptAndMonth(
+                    user.getDepartment(),
+                    selectedYear,
+                    selectedMonth);
+        } else {
+            censoredMessages = dao.getCensoredMessagesByDepartment(
+                    user.getDepartment());
+        }
+
+        topViolators = dao.getTopViolatorsByDepartment(
+                user.getDepartment());
     }
 }
-    // ===== Date Filter Variables =====
-String yearParam = request.getParameter("year");
-String monthParam = request.getParameter("month");
-
-int selectedYear = -1;
-int selectedMonth = -1;
-
 if (yearParam != null && monthParam != null) {
     try {
         selectedYear = Integer.parseInt(yearParam);
@@ -66,24 +120,10 @@ String[] monthNames = {
 SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a");
 
    Map<String, Integer> stats;
-    if (currentUser.isAdmin()) {
+    if (user.isAdmin()) {
         stats = dao.getBadWordStats();
     } else {
-        stats = dao.getBadWordStatsByDepartment(currentUser.getDepartment());
-    }
-User user = (User) session.getAttribute("user");
-    String theme = "LIGHT";
-
-    if (user != null && user.getThemePreference() != null) {
-        theme = user.getThemePreference();
-    }
-
-String navProfilePic = null;
-    if (user != null) {
-        String pic = user.getProfilePicture();
-        if (pic != null && !pic.isEmpty() && !pic.equals("default.jpg")) {
-            navProfilePic = pic;
-        }
+        stats = dao.getBadWordStatsByDepartment(user.getDepartment());
     }
 %>
 <!DOCTYPE html>
@@ -91,6 +131,7 @@ String navProfilePic = null;
 <head>
     <meta charset="UTF-8">
     <title>Content Violations - WorkFlowX</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
     <style>
       * {
     margin:0;
@@ -249,55 +290,6 @@ body {
     padding:40px;
     color:#999;
 }
-
-/* MINI ICON TOGGLE */
-        .mini-toggle {
-            width: 60px;
-            height: 28px;
-            background: #ddd;
-            border-radius: 20px;
-            padding: 3px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .mini-slider {
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 6px;
-            font-size: 12px;
-        }
-
-        .mini-slider::before {
-            content: "";
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: #667eea;
-            border-radius: 50%;
-            left: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .mini-slider.active::before {
-            left: 35px;
-            background: #2b2b3d;
-        }
-
-        .mini-slider span {
-            z-index: 1;
-            }
-
-        /* Dark mode adjustments */
-        .dark-mode .mini-toggle {
-            background: #444;
-        }
-
 /* ================= DARK MODE ================= */
 body.dark-mode {
     background:#1e1e2f;
@@ -349,232 +341,6 @@ body.dark-mode {
 .dark-mode .user-link {
     color:#8fa8ff;
 }
-
-.dark-mode .mini-toggle {
-    background:#444;
-}
-.profile-pic-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.3s;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-}
-
-.profile-pic-btn:hover {
-    background: rgba(255,255,255,0.3);
-    transform: scale(1.2);
-}
-
-.profile-pic-btn img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.profile-icon-svg {
-    width: 12px;
-    height: 12px;
-    fill: white;
-}
-
-    
-    /* ===== MOBILE RESPONSIVE ===== */
-    @media (max-width: 768px) {
-
-        /* Navbar */
-        .navbar, .header {
-            padding: 10px 15px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .navbar h1, .navbar h2, .header h2 {
-            font-size: 16px;
-        }
-        .navbar > div[style] {
-            gap: 8px !important;
-            flex-wrap: wrap;
-        }
-        .navbar .user-info > span {
-            display: none;
-        }
-        .navbar .dashboard-btn, .header .dashboard-btn {
-            padding: 6px 10px;
-            font-size: 12px;
-        }
-
-        /* Container */
-        .container {
-            margin: 10px auto;
-            padding: 0 10px;
-            width: 95% !important;
-        }
-
-        /* Welcome / Page Header */
-        .welcome, .page-header, .section-header {
-            padding: 15px;
-        }
-        .welcome h2, .page-header h1, .page-header h2 {
-            font-size: 18px;
-        }
-
-        /* Dashboard cards */
-        .card { padding: 15px; }
-        .card-icon { font-size: 36px; }
-        .card h3 { font-size: 15px; }
-
-        /* Tables - make scrollable on mobile */
-        .table-container {
-            overflow-x: auto;
-            width: 100%;
-        }
-        table {
-            min-width: 600px;
-        }
-
-        /* Forms */
-        .form-group input,
-        .form-group select,
-        .form-group textarea,
-        .remarks-input {
-            font-size: 16px;
-        }
-
-        /* Buttons - stack vertically */
-        .action-form {
-            flex-direction: column;
-        }
-        .btn-group {
-            flex-direction: column;
-        }
-
-        /* Grid layouts */
-        .dashboard-grid,
-        .cards-grid,
-        .reports-grid,
-        .stats-row,
-        .stats-grid,
-        .stats-container,
-        .grid {
-            grid-template-columns: 1fr !important;
-        }
-
-        /* Stats */
-        .stats { padding: 15px; }
-
-        /* Messages / Chat layout */
-        .main-container {
-            flex-direction: column;
-            height: auto;
-        }
-        .left, .right {
-            width: 100% !important;
-        }
-        .left {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        .right {
-            min-height: 400px;
-        }
-
-        /* Task grid */
-        .task-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .task-header {
-            flex-direction: column;
-            gap: 8px;
-        }
-        .task-meta {
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        /* Leave details */
-        .leave-details {
-            grid-template-columns: 1fr 1fr !important;
-        }
-        .leave-header {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* Profile */
-        .profile-body { padding: 20px; }
-        .form-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .info-row {
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        /* Performance cards */
-        .performance-card {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-        .stats-row {
-            flex-wrap: wrap;
-        }
-
-        /* Report cards */
-        .report-card { padding: 20px; }
-        .report-card .icon { font-size: 36px; }
-
-        /* Tabs */
-        .tabs, .filter-tabs {
-            flex-wrap: wrap;
-        }
-        .tab, .filter-tabs a {
-            font-size: 13px;
-            padding: 8px 12px;
-        }
-
-        /* Notes */
-        .add-note-btn {
-            width: 50px;
-            height: 50px;
-            font-size: 28px;
-        }
-
-        /* Assign task form */
-        .form-container {
-            padding: 20px;
-        }
-
-        /* Violator rows */
-        .violator-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        /* Charts */
-        .chart-bar {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .chart-label { min-width: unset; }
-        .chart-bar-wrapper { width: 100%; }
-
-        /* Messages page send box */
-        .send-box { flex-wrap: wrap; }
-        .send-box input[type=text] { width: 100%; }
-        .send-box input[type=file] { width: 100%; }
-    }
 
     @media (max-width: 480px) {
         .navbar h1, .navbar h2, .header h2 {
@@ -636,12 +402,21 @@ body.dark-mode {
             </a>
         <% } %>
 
-        <a href="javascript:history.back();" class="dashboard-btn">
-    ← Back
-</a>
+           <%
+String backHref = "reports.jsp"; // default
+
+if ("globalReports".equals(request.getParameter("source"))) {
+    backHref = "globalReports.jsp";
+} else if ("reports".equals(request.getParameter("source"))) {
+    backHref = "reports.jsp";
+}
+%>
+
+<a href="<%= backHref %>" class="dashboard-btn">← Back</a>
+
 
     <!-- Dashboard Button -->
-    <% if (currentUser.isAdmin()) { %>
+    <% if (user.isAdmin()) { %>
         <a href="adminDashboard.jsp" class="dashboard-btn">Dashboard</a>
     <% } else { %>
         <a href="employerDashboard.jsp" class="dashboard-btn">Dashboard</a>

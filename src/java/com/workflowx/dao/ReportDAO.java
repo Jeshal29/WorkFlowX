@@ -417,6 +417,115 @@ public List<Map<String, Object>> getCensoredMessagesByUserAndDepartment(int user
     }
     return messages;
 }
+public List<Map<String, Object>> getCensoredMessagesByUserAndMonth(
+        int userId, int year, int month) {
+
+    List<Map<String, Object>> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM messages " +
+                 "WHERE sender_id = ? " +
+                 "AND is_censored = 1 " +
+                 "AND YEAR(sent_at) = ? " +
+                 "AND MONTH(sent_at) = ? " +
+                 "ORDER BY sent_at DESC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, userId);
+        ps.setInt(2, year);
+        ps.setInt(3, month);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Map<String, Object> row = new HashMap<>();
+            row.put("message_id", rs.getInt("message_id"));
+            row.put("content", rs.getString("content"));
+            row.put("sent_at", rs.getTimestamp("sent_at"));
+            list.add(row);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+public List<Map<String, Object>> getCensoredMessagesByDeptAndMonth(
+        String department, int year, int month) {
+
+    List<Map<String, Object>> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM messages m " +
+                 "JOIN users u ON m.sender_id = u.user_id " +
+                 "WHERE u.department = ? " +
+                 "AND m.is_censored = 1 " +
+                 "AND YEAR(m.sent_at) = ? " +
+                 "AND MONTH(m.sent_at) = ? " +
+                 "ORDER BY m.sent_at DESC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, department);
+        ps.setInt(2, year);
+        ps.setInt(3, month);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Map<String, Object> row = new HashMap<>();
+            row.put("message_id", rs.getInt("message_id"));
+            row.put("content", rs.getString("content"));
+            row.put("sent_at", rs.getTimestamp("sent_at"));
+            list.add(row);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+public List<Map<String, Object>> getCensoredMessagesByUserDeptAndMonth(
+        int userId, String department, int year, int month) {
+
+    List<Map<String, Object>> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM messages m " +
+                 "JOIN users u ON m.sender_id = u.user_id " +
+                 "WHERE m.sender_id = ? " +
+                 "AND u.department = ? " +
+                 "AND m.is_censored = 1 " +
+                 "AND YEAR(m.sent_at) = ? " +
+                 "AND MONTH(m.sent_at) = ? " +
+                 "ORDER BY m.sent_at DESC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, userId);
+        ps.setString(2, department);
+        ps.setInt(3, year);
+        ps.setInt(4, month);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Map<String, Object> row = new HashMap<>();
+            row.put("message_id", rs.getInt("message_id"));
+            row.put("content", rs.getString("content"));
+            row.put("sent_at", rs.getTimestamp("sent_at"));
+            list.add(row);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
 // For Admin
 public Map<String, Object> getViolatorByUserId(int userId) {
     Map<String, Object> violator = null;
@@ -567,67 +676,148 @@ public Map<String, Object> getViolatorByUserIdAndDept(int userId, String departm
     // ========== TASK REPORTS ==========
 
     public List<Map<String, Object>> getTasksByStatus(String status) {
-        List<Map<String, Object>> tasks = new ArrayList<>();
-        String sql = "SELECT t.task_id, t.task_title, t.priority, t.status, t.deadline, " +
-                    "t.created_at, assigner.full_name as assigned_by, assignee.full_name as assigned_to " +
-                    "FROM tasks t " +
-                    "JOIN users assigner ON t.assigned_by = assigner.user_id " +
-                    "JOIN users assignee ON t.assigned_to = assignee.user_id " +
-                    "WHERE t.status = ? ORDER BY t.deadline ASC";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    List<Map<String, Object>> tasks = new ArrayList<>();
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+    
+    try {
+        conn = DatabaseConnection.getConnection();
+        String sql;
+        
+        if ("OVERDUE".equals(status)) {
+            sql = "SELECT t.task_id, t.task_title, t.task_description, t.priority, " +
+                  "t.status, t.deadline, " +
+                  "assigner.full_name AS assigned_by, " +
+                  "assignee.full_name AS assigned_to " +
+                  "FROM tasks t " +
+                  "JOIN users assigner ON t.assigned_by = assigner.user_id " +
+                  "JOIN users assignee ON t.assigned_to = assignee.user_id " +
+                  "WHERE t.deadline < CURDATE() " +
+                  "AND t.status != 'COMPLETED' " +
+                  "ORDER BY t.deadline ASC";
+            
+            stmt = conn.prepareStatement(sql);
+            
+        } else {
+            sql = "SELECT t.task_id, t.task_title, t.task_description, t.priority, " +
+                  "t.status, t.deadline, " +
+                  "assigner.full_name AS assigned_by, " +
+                  "assignee.full_name AS assigned_to " +
+                  "FROM tasks t " +
+                  "JOIN users assigner ON t.assigned_by = assigner.user_id " +
+                  "JOIN users assignee ON t.assigned_to = assignee.user_id " +
+                  "WHERE t.status = ? " +
+                  "ORDER BY t.deadline DESC";
+            
+            stmt = conn.prepareStatement(sql);
             stmt.setString(1, status);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Map<String, Object> task = new HashMap<>();
-                task.put("taskId", rs.getInt("task_id"));
-                task.put("taskTitle", rs.getString("task_title"));
-                task.put("priority", rs.getString("priority"));
-                task.put("status", rs.getString("status"));
-                task.put("deadline", rs.getDate("deadline"));
-                task.put("createdAt", rs.getTimestamp("created_at"));
-                task.put("assignedBy", rs.getString("assigned_by"));
-                task.put("assignedTo", rs.getString("assigned_to"));
-                tasks.add(task);
-            }
+        }
+        
+        rs = stmt.executeQuery();
+        
+        while (rs.next()) {
+            Map<String, Object> task = new HashMap<>();
+            task.put("taskId", rs.getInt("task_id"));
+            task.put("taskTitle", rs.getString("task_title"));
+            task.put("description", rs.getString("task_description"));  // ← FIXED
+            task.put("priority", rs.getString("priority"));
+            task.put("status", rs.getString("status"));
+            task.put("deadline", rs.getDate("deadline"));
+            task.put("assignedBy", rs.getString("assigned_by"));
+            task.put("assignedTo", rs.getString("assigned_to"));
+            tasks.add(task);
+        }
+        
+    } catch (SQLException e) {
+        System.err.println("Error in getTasksByStatus: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (conn != null) conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return tasks;
     }
-
+    
+    return tasks;
+}
     // NEW: Tasks by status filtered to only tasks assigned BY a specific employer
-    public List<Map<String, Object>> getTasksByStatusAndEmployer(String status, int employerId) {
-        List<Map<String, Object>> tasks = new ArrayList<>();
-        String sql = "SELECT t.task_id, t.task_title, t.priority, t.status, t.deadline, " +
-                    "t.created_at, assigner.full_name as assigned_by, assignee.full_name as assigned_to " +
-                    "FROM tasks t " +
-                    "JOIN users assigner ON t.assigned_by = assigner.user_id " +
-                    "JOIN users assignee ON t.assigned_to = assignee.user_id " +
-                    "WHERE t.status = ? AND t.assigned_by = ? ORDER BY t.deadline ASC";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+   public List<Map<String, Object>> getTasksByStatusAndEmployer(String status, int employerId) {
+    List<Map<String, Object>> tasks = new ArrayList<>();
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+    
+    try {
+        conn = DatabaseConnection.getConnection();
+        String sql;
+        
+        if ("OVERDUE".equals(status)) {
+            sql = "SELECT t.task_id, t.task_title, t.task_description, t.priority, " +
+                  "t.status, t.deadline, " +
+                  "assigner.full_name AS assigned_by, " +
+                  "assignee.full_name AS assigned_to " +
+                  "FROM tasks t " +
+                  "JOIN users assigner ON t.assigned_by = assigner.user_id " +
+                  "JOIN users assignee ON t.assigned_to = assignee.user_id " +
+                  "WHERE t.deadline < CURDATE() " +
+                  "AND t.status != 'COMPLETED' " +
+                  "AND t.assigned_by = ? " +
+                  "ORDER BY t.deadline ASC";
+            
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, employerId);
+            
+        } else {
+            sql = "SELECT t.task_id, t.task_title, t.task_description, t.priority, " +
+                  "t.status, t.deadline, " +
+                  "assigner.full_name AS assigned_by, " +
+                  "assignee.full_name AS assigned_to " +
+                  "FROM tasks t " +
+                  "JOIN users assigner ON t.assigned_by = assigner.user_id " +
+                  "JOIN users assignee ON t.assigned_to = assignee.user_id " +
+                  "WHERE t.status = ? " +
+                  "AND t.assigned_by = ? " +
+                  "ORDER BY t.deadline DESC";
+            
+            stmt = conn.prepareStatement(sql);
             stmt.setString(1, status);
             stmt.setInt(2, employerId);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Map<String, Object> task = new HashMap<>();
-                task.put("taskId", rs.getInt("task_id"));
-                task.put("taskTitle", rs.getString("task_title"));
-                task.put("priority", rs.getString("priority"));
-                task.put("status", rs.getString("status"));
-                task.put("deadline", rs.getDate("deadline"));
-                task.put("createdAt", rs.getTimestamp("created_at"));
-                task.put("assignedBy", rs.getString("assigned_by"));
-                task.put("assignedTo", rs.getString("assigned_to"));
-                tasks.add(task);
-            }
+        }
+        
+        rs = stmt.executeQuery();
+        
+        while (rs.next()) {
+            Map<String, Object> task = new HashMap<>();
+            task.put("taskId", rs.getInt("task_id"));
+            task.put("taskTitle", rs.getString("task_title"));
+            task.put("description", rs.getString("task_description"));  // ← FIXED
+            task.put("priority", rs.getString("priority"));
+            task.put("status", rs.getString("status"));
+            task.put("deadline", rs.getDate("deadline"));
+            task.put("assignedBy", rs.getString("assigned_by"));
+            task.put("assignedTo", rs.getString("assigned_to"));
+            tasks.add(task);
+        }
+        
+    } catch (SQLException e) {
+        System.err.println("Error in getTasksByStatusAndEmployer: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (conn != null) conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return tasks;
     }
-
+    
+    return tasks;
+}
     public List<Map<String, Object>> getEmployeePerformance() {
         List<Map<String, Object>> performance = new ArrayList<>();
         String sql = "SELECT u.user_id, u.full_name, u.department, " +
@@ -860,32 +1050,87 @@ public Map<String, Object> getViolatorByUserIdAndDept(int userId, String departm
     }
 
     public Map<String, Integer> getTaskStatsByStatus() {
-        Map<String, Integer> stats = new HashMap<>();
+    Map<String, Integer> stats = new HashMap<>();
+    
+    // Initialize all statuses to 0
+    stats.put("PENDING", 0);
+    stats.put("IN_PROGRESS", 0);
+    stats.put("COMPLETED", 0);
+    stats.put("OVERDUE", 0);
+    
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        
+        // Get regular status counts
         String sql = "SELECT status, COUNT(*) as count FROM tasks GROUP BY status";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) stats.put(rs.getString("status"), rs.getInt("count"));
-        } catch (SQLException e) {
-            e.printStackTrace();
+            
+            while (rs.next()) {
+                stats.put(rs.getString("status"), rs.getInt("count"));
+            }
         }
-        return stats;
+        
+        // Get OVERDUE count (deadline passed AND not completed)
+        String overdueSQL = "SELECT COUNT(*) as count FROM tasks " +
+                           "WHERE deadline < CURDATE() AND status != 'COMPLETED'";
+        try (PreparedStatement stmt = conn.prepareStatement(overdueSQL);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            if (rs.next()) {
+                stats.put("OVERDUE", rs.getInt("count"));
+            }
+        }
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    
+    return stats;
+}
 
     // NEW: Task stats by status for a specific employer
-    public Map<String, Integer> getTaskStatsByStatusAndEmployer(int employerId) {
-        Map<String, Integer> stats = new HashMap<>();
-        String sql = "SELECT status, COUNT(*) as count FROM tasks WHERE assigned_by = ? GROUP BY status";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+   public Map<String, Integer> getTaskStatsByStatusAndEmployer(int employerId) {
+    Map<String, Integer> stats = new HashMap<>();
+    
+    stats.put("PENDING", 0);
+    stats.put("IN_PROGRESS", 0);
+    stats.put("COMPLETED", 0);
+    stats.put("OVERDUE", 0);
+    
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        
+        // Regular status counts for this employer
+        String sql = "SELECT status, COUNT(*) as count FROM tasks " +
+                     "WHERE assigned_by = ? GROUP BY status";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, employerId);
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()) stats.put(rs.getString("status"), rs.getInt("count"));
-        } catch (SQLException e) {
-            e.printStackTrace();
+            
+            while (rs.next()) {
+                stats.put(rs.getString("status"), rs.getInt("count"));
+            }
         }
-        return stats;
+        
+        // OVERDUE count for this employer
+        String overdueSQL = "SELECT COUNT(*) as count FROM tasks " +
+                           "WHERE deadline < CURDATE() " +
+                           "AND status != 'COMPLETED' " +
+                           "AND assigned_by = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(overdueSQL)) {
+            stmt.setInt(1, employerId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                stats.put("OVERDUE", rs.getInt("count"));
+            }
+        }
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    
+    return stats;
+}
 
     public Map<String, Integer> getLeaveStatsByStatus() {
         Map<String, Integer> stats = new HashMap<>();

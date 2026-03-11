@@ -20,14 +20,14 @@ public class EditMessageServlet extends HttpServlet {
             return;
         }
 
-        User currentUser = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
 
         int messageId = Integer.parseInt(request.getParameter("messageId"));
         String newContent = request.getParameter("newContent");
 
         MessageDAO messageDAO = new MessageDAO();
 
-        boolean success = messageDAO.updateMessage(messageId, currentUser.getUserId(), newContent);
+        boolean success = messageDAO.updateMessage(messageId, user.getUserId(), newContent);
 
         // Redirect back to same chat
         String referer = request.getHeader("Referer");

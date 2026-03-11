@@ -1,13 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.workflowx.model.User" %>
+<%@ include file="/common/userSession.jsp" %>
 <%
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
-    String theme = user.getThemePreference() != null ? user.getThemePreference() : "LIGHT";
-    
     // Get profile picture with proper fallback
     String profilePic = user.getProfilePicture();
     String profilePicPath = "";
@@ -16,7 +9,7 @@
         // Use a data URL for default avatar (no external file needed)
         profilePicPath = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='0.35em' font-family='Arial' font-size='40' fill='white'%3E" + user.getFullName().charAt(0) + "%3C/text%3E%3C/svg%3E";
     } else {
-        profilePicPath = "uploads/profiles/" + profilePic;
+        profilePicPath = request.getContextPath() + "/uploads/profiles/" + profilePic;
     }
     
     // Determine navbar gradient based on role (match dashboard)
@@ -36,6 +29,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - WorkFlowX</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
     <style>
         * {
             margin: 0;
@@ -323,223 +317,8 @@
             border-radius: 8px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
-    
-    /* ===== MOBILE RESPONSIVE ===== */
-    @media (max-width: 768px) {
-
-        /* Navbar */
-        .navbar, .header {
-            padding: 10px 15px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .navbar h1, .navbar h2, .header h2 {
-            font-size: 16px;
-        }
-        .navbar > div[style] {
-            gap: 8px !important;
-            flex-wrap: wrap;
-        }
-        .navbar .user-info > span {
-            display: none;
-        }
-        .navbar .dashboard-btn, .header .dashboard-btn {
-            padding: 6px 10px;
-            font-size: 12px;
-        }
-
-        /* Container */
-        .container {
-            margin: 10px auto;
-            padding: 0 10px;
-            width: 95% !important;
-        }
-
-        /* Welcome / Page Header */
-        .welcome, .page-header, .section-header {
-            padding: 15px;
-        }
-        .welcome h2, .page-header h1, .page-header h2 {
-            font-size: 18px;
-        }
-
-        /* Dashboard cards */
-        .card { padding: 15px; }
-        .card-icon { font-size: 36px; }
-        .card h3 { font-size: 15px; }
-
-        /* Tables - make scrollable on mobile */
-        .table-container {
-            overflow-x: auto;
-            width: 100%;
-        }
-        table {
-            min-width: 600px;
-        }
-
-        /* Forms */
-        .form-group input,
-        .form-group select,
-        .form-group textarea,
-        .remarks-input {
-            font-size: 16px;
-        }
-
-        /* Buttons - stack vertically */
-        .action-form {
-            flex-direction: column;
-        }
-        .btn-group {
-            flex-direction: column;
-        }
-
-        /* Grid layouts */
-        .dashboard-grid,
-        .cards-grid,
-        .reports-grid,
-        .stats-row,
-        .stats-grid,
-        .stats-container,
-        .grid {
-            grid-template-columns: 1fr !important;
-        }
-
-        /* Stats */
-        .stats { padding: 15px; }
-
-        /* Messages / Chat layout */
-        .main-container {
-            flex-direction: column;
-            height: auto;
-        }
-        .left, .right {
-            width: 100% !important;
-        }
-        .left {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        .right {
-            min-height: 400px;
-        }
-
-        /* Task grid */
-        .task-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .task-header {
-            flex-direction: column;
-            gap: 8px;
-        }
-        .task-meta {
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        /* Leave details */
-        .leave-details {
-            grid-template-columns: 1fr 1fr !important;
-        }
-        .leave-header {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* Profile */
-        .profile-body { padding: 20px; }
-        .form-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .info-row {
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        /* Performance cards */
-        .performance-card {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-        .stats-row {
-            flex-wrap: wrap;
-        }
-
-        /* Report cards */
-        .report-card { padding: 20px; }
-        .report-card .icon { font-size: 36px; }
-
-        /* Tabs */
-        .tabs, .filter-tabs {
-            flex-wrap: wrap;
-        }
-        .tab, .filter-tabs a {
-            font-size: 13px;
-            padding: 8px 12px;
-        }
-
-        /* Notes */
-        .add-note-btn {
-            width: 50px;
-            height: 50px;
-            font-size: 28px;
-        }
-
-        /* Assign task form */
-        .form-container {
-            padding: 20px;
-        }
-
-        /* Violator rows */
-        .violator-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        /* Charts */
-        .chart-bar {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .chart-label { min-width: unset; }
-        .chart-bar-wrapper { width: 100%; }
-
-        /* Messages page send box */
-        .send-box { flex-wrap: wrap; }
-        .send-box input[type=text] { width: 100%; }
-        .send-box input[type=file] { width: 100%; }
-    }
-
-    @media (max-width: 480px) {
-        .navbar h1, .navbar h2, .header h2 {
-            font-size: 14px;
-        }
-        .stat-card .number {
-            font-size: 28px;
-        }
-        .leave-details {
-            grid-template-columns: 1fr !important;
-        }
-    }
-    .remove-btn {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    border: none;
-    background: #ff4d4d;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-    transition: 0.3s;
-}
-
-.remove-btn:hover {
-    background: #cc0000;
-    transform: scale(1.1);
-}
-
+        .form-group input.valid  { border-color: #28a745 !important; }
+.form-group input.invalid { border-color: #dc3545 !important; }
 </style>
 </head>
 <body class="<%= theme.equals("DARK") ? "dark-mode" : "" %>">
@@ -560,14 +339,16 @@
             <div class="profile-header">
                 <div class="profile-picture-container">
 
-    <%
-    String finalPath;
-    if (profilePic == null || profilePic.isEmpty() || profilePic.equals("default.jpg")) {
-        finalPath = profilePicPath;
-    } else {
-        finalPath = request.getContextPath() + "/uploads/profiles/" + profilePic;
-    }
-    %>
+   <%
+String finalPath;
+if (profilePic == null || profilePic.isEmpty() || profilePic.equals("default.jpg")) {
+    finalPath = profilePicPath;
+} else {
+    finalPath = request.getContextPath() + "/uploads/profiles/" + profilePic;
+    // Debug: uncomment below to check path in page source
+    // out.println("<!-- IMG PATH: " + finalPath + " -->");
+}
+%>
 
     <img src="<%= finalPath %>" 
          alt="<%= user.getFullName() %>" 
@@ -598,7 +379,7 @@
     <% } %>
 
 </div>
-
+</div>
 
 
             
@@ -632,7 +413,7 @@
                             <label>Email Address</label>
                             <input type="email" name="email" value="<%= user.getEmail() %>" required>
                         </div>
-                        
+                       
                         <div class="form-group">
                             <label>Full Name</label>
                             <input type="text" name="fullName" value="<%= user.getFullName() %>" required>
@@ -712,6 +493,7 @@
             }
         }
     }
+    
     </script>
 </body>
 </html>

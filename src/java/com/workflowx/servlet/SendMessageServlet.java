@@ -17,8 +17,8 @@ public class SendMessageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws IOException, ServletException {
 
-        User currentUser = (User) request.getSession().getAttribute("user");
-        if (currentUser == null) {
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
             response.sendRedirect("login.jsp");
             return;
         }
@@ -71,7 +71,7 @@ attachmentPath = "attachments/" + newFileName;
 
         // Save message
         MessageDAO dao = new MessageDAO();
-        dao.sendMessage(currentUser.getUserId(), receiverId, messageText, attachmentPath);
+        dao.sendMessage(user.getUserId(), receiverId, messageText, attachmentPath);
 
         response.sendRedirect("messages.jsp?chatUserId=" + receiverId);
     }

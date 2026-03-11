@@ -16,15 +16,15 @@ public class ToggleUserStatusServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
         
         // Security check - only EMPLOYER or ADMIN can toggle status
-        if (currentUser == null) {
+        if (user == null) {
             response.sendRedirect("login.jsp");
             return;
         }
         
-        if (!currentUser.isEmployer() && !currentUser.isAdmin()) {
+        if (!user.isEmployer() && !user.isAdmin()) {
             response.sendRedirect("login.jsp");
             return;
         }
@@ -55,7 +55,7 @@ public class ToggleUserStatusServlet extends HttpServlet {
             String redirectPage = "employees.jsp"; // Default
             if (returnPage != null && !returnPage.isEmpty()) {
                 redirectPage = returnPage;
-            } else if (currentUser.isAdmin()) {
+            } else if (user.isAdmin()) {
                 redirectPage = "manageEmployers.jsp"; // Admin goes to manageUsers
             }
             
@@ -65,11 +65,11 @@ public class ToggleUserStatusServlet extends HttpServlet {
             
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            String redirect = (currentUser.isAdmin()) ? "manageEmployers.jsp" : "employees.jsp";
+            String redirect = (user.isAdmin()) ? "manageEmployers.jsp" : "employees.jsp";
             response.sendRedirect(redirect + "?error=invalid_id");
         } catch (Exception e) {
             e.printStackTrace();
-            String redirect = (currentUser.isAdmin()) ? "manageEmployers.jsp" : "employees.jsp";
+            String redirect = (user.isAdmin()) ? "manageEmployers.jsp" : "employees.jsp";
             response.sendRedirect(redirect + "?error=update_failed");
         }
     }
@@ -79,13 +79,13 @@ public class ToggleUserStatusServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
         
-        if (currentUser == null) {
+        if (user == null) {
             response.sendRedirect("login.jsp");
-        } else if (currentUser.isAdmin()) {
+        } else if (user.isAdmin()) {
             response.sendRedirect("manageEmployers.jsp");
-        } else if (currentUser.isEmployer()) {
+        } else if (user.isEmployer()) {
             response.sendRedirect("employees.jsp");
         } else {
             response.sendRedirect("login.jsp");

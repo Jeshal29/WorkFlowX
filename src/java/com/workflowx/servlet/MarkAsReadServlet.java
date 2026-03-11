@@ -20,8 +20,8 @@ public class MarkAsReadServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // Get current user from session
-        User currentUser = (User) request.getSession().getAttribute("user");
-        if (currentUser == null) {
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
             response.sendRedirect("login.jsp");
             return;
         }
@@ -34,7 +34,7 @@ public class MarkAsReadServlet extends HttpServlet {
 
         // Mark messages as read in the database
         MessageDAO dao = new MessageDAO();
-        dao.markMessagesAsRead(currentUser.getUserId(), senderId);
+        dao.markMessagesAsRead(user.getUserId(), senderId);
 
         // Optional: send OK response for AJAX
         response.setStatus(HttpServletResponse.SC_OK);

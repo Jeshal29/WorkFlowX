@@ -1,23 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.workflowx.model.User, com.workflowx.dao.ReportDAO, java.util.*, java.text.SimpleDateFormat, java.sql.Timestamp, java.util.Calendar" %>
+<%@ include file="/common/userSession.jsp" %>
+<%@ include file="/common/adminOnly.jsp" %>
 
 <%
-User currentUser = (User) session.getAttribute("user");
-if (currentUser == null) {
-    response.sendRedirect("login.jsp");
-    return;
-}
-String role = currentUser.getRole();
-String primaryColor = role.equals("ADMIN") ? "#f5576c" : "#667eea";
-// Only Admin can access full messages, Employer can access department messages
-if (!currentUser.isAdmin() && !currentUser.isEmployer()) {
-    response.sendRedirect("employeeDashboard.jsp");
-    return;
-}
-String theme = "LIGHT";
-if (currentUser.getThemePreference() != null) {
-    theme = currentUser.getThemePreference();
-}
 
 ReportDAO dao = new ReportDAO();
 String source = request.getParameter("source");
@@ -33,28 +19,22 @@ String[] monthNames = {"January","February","March","April","May","June",
                        "July","August","September","October","November","December"};
 
 // Messages and violations
-List<Map<String,Object>> employerMessages = currentUser.isAdmin() ? dao.getMessagesBySenderRole("EMPLOYER")
-                                                                  : dao.getMessagesBySenderRoleByDepartment("EMPLOYER", currentUser.getDepartment());
-List<Map<String,Object>> employeeMessages = currentUser.isAdmin() ? dao.getMessagesBySenderRole("EMPLOYEE")
-                                                                  : dao.getMessagesBySenderRoleByDepartment("EMPLOYEE", currentUser.getDepartment());
+List<Map<String,Object>> employerMessages = user.isAdmin() ? dao.getMessagesBySenderRole("EMPLOYER")
+                                                                  : dao.getMessagesBySenderRoleByDepartment("EMPLOYER", user.getDepartment());
+List<Map<String,Object>> employeeMessages = user.isAdmin() ? dao.getMessagesBySenderRole("EMPLOYEE")
+                                                                  : dao.getMessagesBySenderRoleByDepartment("EMPLOYEE", user.getDepartment());
 
-List<Map<String,Object>> censoredMessages = currentUser.isAdmin()
+List<Map<String,Object>> censoredMessages = user.isAdmin()
         ? (yearParam != null && monthParam != null ? dao.getCensoredMessagesByMonth(selectedYear, selectedMonth)
                                                    : dao.getCensoredMessages())
-        : dao.getCensoredMessagesByDepartment(currentUser.getDepartment());
+        : dao.getCensoredMessagesByDepartment(user.getDepartment());
 
-List<Map<String,Object>> topViolators = currentUser.isAdmin() ? dao.getTopViolators()
-                                                              : dao.getTopViolatorsByDepartment(currentUser.getDepartment());
+List<Map<String,Object>> topViolators = user.isAdmin() ? dao.getTopViolators()
+                                                              : dao.getTopViolatorsByDepartment(user.getDepartment());
 
 Map<String,Integer> stats = dao.getBadWordStats();
 SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm");
-String navProfilePic = null;
-    if (currentUser != null) {
-        String pic = currentUser.getProfilePicture();
-        if (pic != null && !pic.isEmpty() && !pic.equals("default.jpg")) {
-            navProfilePic = pic;
-        }
-    }
+
 %>
 
 <!DOCTYPE html>
@@ -62,6 +42,7 @@ String navProfilePic = null;
 <head>
 <meta charset="UTF-8">
 <title>WorkFlowX Admin / Employer Messages & Violations</title>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -158,286 +139,6 @@ input.search { width:100%; padding:10px; border:1px solid #ddd; border-radius:5p
 .dark-mode button.toggle-btn.active {
     background:#6366f1;
 }
-
-
-
-.mini-toggle {
-    width:60px;
-    height:28px;
-    background:#ddd;
-    border-radius:20px;
-    padding:3px;
-    cursor:pointer;
-}
-
-.mini-slider {
-    width:100%;
-    height:100%;
-    border-radius:20px;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 6px;
-    font-size:12px;
-}
-
-.mini-slider::before {
-    content:"";
-    position:absolute;
-    width:22px;
-    height:22px;
-    background:<%= primaryColor %>;
-    border-radius:50%;
-    left:3px;
-    transition:all 0.3s ease;
-}
-
-.mini-slider.active::before {
-    left:35px;
-    background:#2b2b3d;
-}
-
-.mini-slider span { z-index:1; }
-
-.dark-mode .mini-toggle {
-    background:#444;
-}
-.profile-pic-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.3s;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-}
-
-.profile-pic-btn:hover {
-    background: rgba(255,255,255,0.3);
-    transform: scale(1.2);
-}
-
-.profile-pic-btn img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.profile-icon-svg {
-    width: 12px;
-    height: 12px;
-    fill: white;
-}
-
-
-    /* ===== MOBILE RESPONSIVE ===== */
-    @media (max-width: 768px) {
-
-        /* Navbar */
-        .navbar, .header {
-            padding: 10px 15px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .navbar h1, .navbar h2, .header h2 {
-            font-size: 16px;
-        }
-        .navbar > div[style] {
-            gap: 8px !important;
-            flex-wrap: wrap;
-        }
-        .navbar .user-info > span {
-            display: none;
-        }
-        .navbar .dashboard-btn, .header .dashboard-btn {
-            padding: 6px 10px;
-            font-size: 12px;
-        }
-
-        /* Container */
-        .container {
-            margin: 10px auto;
-            padding: 0 10px;
-            width: 95% !important;
-        }
-
-        /* Welcome / Page Header */
-        .welcome, .page-header, .section-header {
-            padding: 15px;
-        }
-        .welcome h2, .page-header h1, .page-header h2 {
-            font-size: 18px;
-        }
-
-        /* Dashboard cards */
-        .card { padding: 15px; }
-        .card-icon { font-size: 36px; }
-        .card h3 { font-size: 15px; }
-
-        /* Tables - make scrollable on mobile */
-        .table-container {
-            overflow-x: auto;
-            width: 100%;
-        }
-        table {
-            min-width: 600px;
-        }
-
-        /* Forms */
-        .form-group input,
-        .form-group select,
-        .form-group textarea,
-        .remarks-input {
-            font-size: 16px;
-        }
-
-        /* Buttons - stack vertically */
-        .action-form {
-            flex-direction: column;
-        }
-        .btn-group {
-            flex-direction: column;
-        }
-
-        /* Grid layouts */
-        .dashboard-grid,
-        .cards-grid,
-        .reports-grid,
-        .stats-row,
-        .stats-grid,
-        .stats-container,
-        .grid {
-            grid-template-columns: 1fr !important;
-        }
-
-        /* Stats */
-        .stats { padding: 15px; }
-
-        /* Messages / Chat layout */
-        .main-container {
-            flex-direction: column;
-            height: auto;
-        }
-        .left, .right {
-            width: 100% !important;
-        }
-        .left {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        .right {
-            min-height: 400px;
-        }
-
-        /* Task grid */
-        .task-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .task-header {
-            flex-direction: column;
-            gap: 8px;
-        }
-        .task-meta {
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        /* Leave details */
-        .leave-details {
-            grid-template-columns: 1fr 1fr !important;
-        }
-        .leave-header {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* Profile */
-        .profile-body { padding: 20px; }
-        .form-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .info-row {
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        /* Performance cards */
-        .performance-card {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-        .stats-row {
-            flex-wrap: wrap;
-        }
-
-        /* Report cards */
-        .report-card { padding: 20px; }
-        .report-card .icon { font-size: 36px; }
-
-        /* Tabs */
-        .tabs, .filter-tabs {
-            flex-wrap: wrap;
-        }
-        .tab, .filter-tabs a {
-            font-size: 13px;
-            padding: 8px 12px;
-        }
-
-        /* Notes */
-        .add-note-btn {
-            width: 50px;
-            height: 50px;
-            font-size: 28px;
-        }
-
-        /* Assign task form */
-        .form-container {
-            padding: 20px;
-        }
-
-        /* Violator rows */
-        .violator-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        /* Charts */
-        .chart-bar {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .chart-label { min-width: unset; }
-        .chart-bar-wrapper { width: 100%; }
-
-        /* Messages page send box */
-        .send-box { flex-wrap: wrap; }
-        .send-box input[type=text] { width: 100%; }
-        .send-box input[type=file] { width: 100%; }
-    }
-
-    @media (max-width: 480px) {
-        .navbar h1, .navbar h2, .header h2 {
-            font-size: 14px;
-        }
-        .stat-card .number {
-            font-size: 28px;
-        }
-        .leave-details {
-            grid-template-columns: 1fr !important;
-        }
-    }
-
 </style>
 </head>
 <body class="<%= theme.equals("DARK") ? "dark-mode" : "" %>">

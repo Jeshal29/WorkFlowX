@@ -10,11 +10,11 @@ import java.io.IOException;
 public class DeleteMessageServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User currentUser = (User) req.getSession().getAttribute("user");
+        User user = (User) req.getSession().getAttribute("user");
         int messageId = Integer.parseInt(req.getParameter("messageId"));
 
         MessageDAO dao = new MessageDAO();
-        dao.deleteMessage(messageId, currentUser.getUserId());
+        dao.deleteMessage(messageId, user.getUserId());
         resp.sendRedirect(req.getHeader("referer"));
     }
 }

@@ -1,32 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.workflowx.model.User" %>
-<%
-    User currentUser = (User) session.getAttribute("user");
-    if (currentUser == null || !currentUser.isAdmin()) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
-    
-    String theme = "LIGHT";
-    if (currentUser != null && currentUser.getThemePreference() != null) {
-        theme = currentUser.getThemePreference();
-    }
-    
-    String navProfilePic = null;
-    if (currentUser != null) {
-        String pic = currentUser.getProfilePicture();
-        if (pic != null && !pic.isEmpty() && !pic.equals("default.jpg")) {
-            navProfilePic = pic;
-        }
-    }
-%>
-
+<%@ include file="/common/userSession.jsp" %>
+<%@ include file="/common/adminOnly.jsp" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Employer Account - WorkFlowX</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -226,82 +207,7 @@
             margin-bottom: 20px;
             border-left: 4px solid #3c3;
         }
-        
-        .profile-pic-btn {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s;
-            overflow: hidden;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .profile-pic-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.2);
-        }
-        
-        .profile-pic-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-        
-        .profile-icon-svg {
-            width: 12px;
-            height: 12px;
-            fill: white;
-        }
-        
-        .mini-toggle {
-            width: 60px;
-            height: 28px;
-            background: #ddd;
-            border-radius: 20px;
-            padding: 3px;
-            cursor: pointer;
-        }
-        
-        .mini-slider {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 6px;
-            font-size: 12px;
-        }
-        
-        .mini-slider::before {
-            content: "";
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: #f5576c;
-            border-radius: 50%;
-            left: 3px;
-            transition: all 0.3s ease;
-        }
-        
-        .mini-slider.active::before {
-            left: 35px;
-            background: #2b2b3d;
-        }
-        
-        .dark-mode .mini-toggle {
-            background: #444;
-        }
-        
+  
         @media (max-width: 768px) {
             .container {
                 margin: 20px auto;
@@ -321,7 +227,15 @@
             .navbar h2 {
                 font-size: 16px;
             }
-        }
+        }/* Phone validation */
+.input-with-icon { position: relative; }
+.input-with-icon .flag { 
+    position: absolute; left: 12px; top: 50%; 
+    transform: translateY(-50%); font-size: 15px; pointer-events: none; 
+}
+.input-with-icon input { padding-left: 38px !important; }
+.form-group input.valid  { border-color: #28a745 !important; }
+.form-group input.invalid { border-color: #dc3545 !important; }
     </style>
 </head>
 <body class="<%= theme.equals("DARK") ? "dark-mode" : "" %>">
@@ -380,7 +294,9 @@
                 
                 <div class="form-group">
                     <label>Email <span class="required">*</span></label>
-                    <input type="email" name="email" required placeholder="employer@company.com">
+                    <input type="email" id="emailInput" name="email" required 
+       placeholder="your.email@example.com" oninput="validateEmail(this)">
+                    <div class="field-hint" id="emailHint"></div>
                 </div>
                 
                 <div class="form-group">
@@ -542,6 +458,18 @@ function validateForm() {
         return false;
     }
     return true;
+}
+function validateEmail(inp) {
+    var re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    var h = document.getElementById('emailHint');
+    if (!inp.value) { h.textContent=''; inp.classList.remove('valid','invalid'); return; }
+    if (re.test(inp.value.trim())) {
+        inp.classList.add('valid'); inp.classList.remove('invalid');
+        h.className='field-hint ok'; h.textContent='✓ Valid email address';
+    } else {
+        inp.classList.add('invalid'); inp.classList.remove('valid');
+        h.className='field-hint err'; h.textContent='✗ Enter a valid email (e.g. name@domain.com)';
+    }
 }
 
     </script>
