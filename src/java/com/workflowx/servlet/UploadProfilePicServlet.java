@@ -82,9 +82,11 @@ public class UploadProfilePicServlet extends HttpServlet {
             // Get upload path
             // PERMANENT storage - outside build folder
             // Use environment variable for Render, local path for NetBeans
-String uploadPath = System.getenv("UPLOAD_DIR") != null 
+            // Mirror save to permanent location as backup
+
+            String uploadPath = System.getenv("UPLOAD_DIR") != null 
     ? System.getenv("UPLOAD_DIR") + "/profiles/" 
-    : "C:/project/EmployeeApp1/uploads/profiles/";
+    : getServletContext().getRealPath("") + File.separator + "uploads" + File.separator + "profiles";
 
 File uploadDir = new File(uploadPath);
 if (!uploadDir.exists()) {

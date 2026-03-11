@@ -267,9 +267,10 @@ tr:nth-child(even) {
 <td><%= emp.getDepartment() %></td>
 <td>
 <form action="ToggleUserStatusServlet" method="post">
-<input type="hidden" name="userId" value="<%= emp.getUserId() %>">
-<input type="hidden" name="currentStatus" value="true">
-<button type="submit" class="deactivate-btn">Deactivate</button>
+    <input type="hidden" name="userId" value="<%= emp.getUserId() %>">
+    <input type="hidden" name="currentStatus" value="true">
+    <input type="hidden" name="returnPage" value="employees.jsp">
+    <button type="submit" class="deactivate-btn">Deactivate</button>
 </form>
 </td>
 </tr>
@@ -297,9 +298,10 @@ if("EMPLOYEE".equals(emp.getRole())) { %>
 <td><%= emp.getDepartment() %></td>
 <td>
 <form action="ToggleUserStatusServlet" method="post">
-<input type="hidden" name="userId" value="<%= emp.getUserId() %>">
-<input type="hidden" name="currentStatus" value="false">
-<button type="submit" class="activate-btn">Activate</button>
+    <input type="hidden" name="userId" value="<%= emp.getUserId() %>">
+    <input type="hidden" name="currentStatus" value="false">
+    <input type="hidden" name="returnPage" value="employees.jsp">
+    <button type="submit" class="activate-btn">Activate</button>
 </form>
 </td>
 </tr>

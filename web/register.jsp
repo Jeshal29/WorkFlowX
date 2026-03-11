@@ -219,14 +219,12 @@
        <div class="form-group">
     <label>Department <span class="required">*</span></label>
     <select name="department" required>
-        <option value="">-- Select Department --</option>
-        <option value="HR">HR</option>
+        <option value="">-- Select Department --</option>        
         <option value="IT">IT</option>
         <option value="Finance">Finance</option>
         <option value="Sales">Sales</option>
         <option value="Marketing">Marketing</option>
-        <option value="Development">Development</option>
-        <option value="Support">Support</option>
+        <option value="Development">Development</option>        
     </select>
 </div>
         <%-- Role is fixed as EMPLOYEE. Employers are created by Admin only. --%>

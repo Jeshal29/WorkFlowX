@@ -423,7 +423,7 @@ if (profilePic == null || profilePic.isEmpty() || profilePic.equals("default.jpg
     <label>Department</label>
     <select name="department">
         <option value="">-- Select Department --</option>
-        <% String[] depts = {"HR","IT","Finance","Sales","Marketing","Development","Support"};
+        <% String[] depts = {"IT","Finance","Sales","Marketing","Development"};
            String userDept = user.getDepartment() != null ? user.getDepartment() : "";
            for (String d : depts) { %>
             <option value="<%= d %>" <%= d.equals(userDept) ? "selected" : "" %>><%= d %></option>

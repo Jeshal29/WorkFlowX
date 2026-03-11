@@ -1,8 +1,6 @@
 package com.workflowx.servlet;
-
 import com.workflowx.dao.UserDAO;
 import com.workflowx.model.User;
-
 import java.io.IOException;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
@@ -18,7 +16,6 @@ public class ToggleUserStatusServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         
-        // Security check - only EMPLOYER or ADMIN can toggle status
         if (user == null) {
             response.sendRedirect("login.jsp");
             return;
@@ -30,10 +27,9 @@ public class ToggleUserStatusServlet extends HttpServlet {
         }
         
         try {
-            // Get parameters
             String userIdStr = request.getParameter("userId");
             String currentStatusStr = request.getParameter("currentStatus");
-            String returnPage = request.getParameter("returnPage"); // Optional parameter
+            String returnPage = request.getParameter("returnPage");
             
             if (userIdStr == null || currentStatusStr == null) {
                 String redirect = (returnPage != null) ? returnPage : "employees.jsp";
@@ -44,22 +40,52 @@ public class ToggleUserStatusServlet extends HttpServlet {
             int userId = Integer.parseInt(userIdStr);
             boolean currentStatus = Boolean.parseBoolean(currentStatusStr);
             
-            // Toggle the status
+            // Fetch target user
+            UserDAO userDAO = new UserDAO();
+            User targetUser = userDAO.getUserById(userId);
+            
+            if (targetUser == null) {
+                String redirect = (returnPage != null) ? returnPage : "employees.jsp";
+                response.sendRedirect(redirect + "?error=user_not_found");
+                return;
+            }
+            
+            // Employer can only toggle employees in their own department
+            if (user.isEmployer()) {
+                if (!targetUser.isEmployee()) {
+                    response.sendRedirect("employees.jsp?error=unauthorized");
+                    return;
+                }
+                if (!targetUser.getDepartment().equals(user.getDepartment())) {
+                    response.sendRedirect("employees.jsp?error=unauthorized");
+                    return;
+                }
+            }
+            
+            // Admin can toggle Employers and Employees but NOT other Admins
+            if (user.isAdmin()) {
+                if (targetUser.isAdmin()) {
+                    response.sendRedirect("manageEmployers.jsp?error=unauthorized");
+                    return;
+                }
+            }
+            
+            // Toggle status
             boolean newStatus = !currentStatus;
             
             // Update in database
-            UserDAO userDAO = new UserDAO();
             userDAO.updateUserStatus(userId, newStatus);
             
             // Determine redirect page
-            String redirectPage = "employees.jsp"; // Default
+            String redirectPage;
             if (returnPage != null && !returnPage.isEmpty()) {
                 redirectPage = returnPage;
             } else if (user.isAdmin()) {
-                redirectPage = "manageEmployers.jsp"; // Admin goes to manageUsers
+                redirectPage = "manageEmployers.jsp";
+            } else {
+                redirectPage = "employees.jsp";
             }
             
-            // Redirect back with success message
             String action = newStatus ? "activated" : "deactivated";
             response.sendRedirect(redirectPage + "?success=" + action);
             
